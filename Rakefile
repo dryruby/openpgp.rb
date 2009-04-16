@@ -5,10 +5,10 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "openpgp"
-    gem.summary = "OpenPGP for Ruby"
+    gem.summary = "A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880)."
     gem.email = "arto.bendiken@gmail.com"
     gem.homepage = "http://github.com/bendiken/openpgp"
-    gem.description = "OpenPGP for Ruby."
+    gem.description = "OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880)."
     gem.authors = ["Arto Bendiken"]
     gem.executables = ['pgpdump']
   end

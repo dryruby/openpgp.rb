@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors = ["Arto Bendiken"]
   s.date = %q{2009-04-16}
   s.default_executable = %q{pgpdump}
-  s.description = %q{OpenPGP for Ruby.}
+  s.description = %q{OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).}
   s.email = %q{arto.bendiken@gmail.com}
   s.executables = ["pgpdump"]
   s.extra_rdoc_files = [
@@ -22,15 +22,17 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/pgpdump",
     "lib/openpgp.rb",
+    "lib/openpgp/armor.rb",
     "lib/openpgp/message.rb",
-    "lib/openpgp/packet.rb"
+    "lib/openpgp/packet.rb",
+    "lib/openpgp/version.rb"
   ]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/bendiken/openpgp}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.2}
-  s.summary = %q{OpenPGP for Ruby}
+  s.summary = %q{A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
