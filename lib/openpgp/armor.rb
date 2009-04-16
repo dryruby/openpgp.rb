@@ -28,13 +28,13 @@ module OpenPGP
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     def self.header(marker)
-      "-----BEGIN #{marker.to_s.upcase}-----"
+      "-----BEGIN PGP #{marker.to_s.upcase}-----"
     end
 
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     def self.footer(marker)
-      "-----END #{marker.to_s.upcase}-----"
+      "-----END PGP #{marker.to_s.upcase}-----"
     end
 
     ##
@@ -58,7 +58,35 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc2045
     def self.decode(text, marker = nil)
-      # TODO
+      require 'stringio'
+      require 'base64'
+
+      data, crc, state = StringIO.new, nil, :begin
+      text.each_line do |line|
+        line.chomp!
+        case state
+          when :begin
+            case line
+              when /^-----BEGIN PGP ([^-]+)-----$/
+                state = :head if marker.nil? || marker.to_s.upcase == $1
+            end
+          when :head
+            state = :body if line =~ /^\s*$/
+          when :body
+            case line
+              when /^=(....)$/
+                crc = ("\0" << Base64.decode64($1)).unpack('N').first
+                state = :end
+              when /^-----END PGP ([^-]+)-----$/
+                state = :end
+              else
+                data << Base64.decode64(line)
+            end
+          when :end
+            break
+        end
+      end
+      data.string
     end
 
     ##
