@@ -13,7 +13,7 @@ begin
     gem.executables = ['pgpdump']
   end
 rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install jeweler"
+  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install bendiken-jeweler -s http://gems.github.com"
 end
 
 require 'rake/testtask'
@@ -27,8 +27,10 @@ task :default => :test
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION').chomp : ''
+
   rdoc.rdoc_dir = 'doc/rdoc'
-  rdoc.title = "openpgp #{File.read('VERSION')}"
+  rdoc.title = "openpgp #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
