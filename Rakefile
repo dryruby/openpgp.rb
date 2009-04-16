@@ -30,7 +30,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION').chomp : ''
 
   rdoc.rdoc_dir = 'doc/rdoc'
-  rdoc.title = "openpgp #{version}"
+  rdoc.title = "OpenPGP #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
