@@ -10,7 +10,7 @@ begin
     gem.homepage = "http://github.com/bendiken/openpgp"
     gem.description = "OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880)."
     gem.authors = ["Arto Bendiken"]
-    gem.executables = ['pgpdump']
+    gem.executables = ['openpgp']
   end
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install bendiken-jeweler -s http://gems.github.com"
