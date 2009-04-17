@@ -1,9 +1,9 @@
 module OpenPGP
-  module VERSION
+  module Version
     MAJOR = 0
     MINOR = 0
     TINY  = 1
-    EXTRA = :dev
+    EXTRA = nil
 
     STRING = [MAJOR, MINOR, TINY].join('.')
     STRING << "-#{EXTRA}" if EXTRA
