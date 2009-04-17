@@ -43,7 +43,7 @@ module OpenPGP
           data_length = (data.getc << 24) | (data.getc << 16) | (data.getc << 8) | data.getc
       end
 
-      Packet.new(tag, data.read(data_length))
+      Packet.for(tag).new(tag, data.read(data_length))
     end
 
     ##
@@ -67,11 +67,59 @@ module OpenPGP
           raise "Invalid OpenPGP packet length-type: expected 0..3 but got #{len}"
       end
 
-      Packet.new(tag, data_length ? data.read(data_length) : data.read)
+      Packet.for(tag).new(tag, data_length ? data.read(data_length) : data.read)
+    end
+
+    def self.for(tag)
+      @@tags[tag.to_i] || self
     end
 
     def initialize(tag = nil, data = nil)
-      @tag, @size, @data = tag, data.size, data
+      @tag, @data, @size = tag, data, data ? data.size : 0
     end
+
+    ##
+    # OpenPGP User ID packet (tag 13).
+    #
+    # @see http://tools.ietf.org/html/rfc4880#section-5.11
+    # @see http://tools.ietf.org/html/rfc2822
+    class UserID < Packet
+      attr_accessor :name, :comment, :email
+
+      def initialize(tag = nil, data = nil)
+        super
+        case data
+          # User IDs of the form: "name (comment) <email>"
+          when /^([^\(]+)\(([^\)]+)\)\s+<([^>]+)>$/
+            @name, @comment, @email = $1, $2, $3
+          # User IDs of the form: "name <email>"
+          when /^([^<]+)\s+<([^>]+)>$/
+            @name, @comment, @email = $1, nil, $2
+          # User IDs of the form: "name"
+          when /^([^<]+)$/
+            @name, @comment, @email = $1, nil, nil
+          # User IDs of the form: "<email>"
+          when /^<([^>]+)>$/
+            @name, @comment, @email = nil, nil, $2
+          else
+            @name, @comment, @email = nil
+        end
+      end
+
+      def to_s
+        text = []
+        text << name if name
+        text << "(#{comment})" if comment
+        text << "<#{email}>" if email
+        text.join(' ')
+      end
+    end
+
+    protected
+      ##
+      # @see http://tools.ietf.org/html/rfc4880#section-4.3
+      @@tags = {
+        13 => UserID,
+      }
   end
 end
