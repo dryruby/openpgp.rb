@@ -15,9 +15,23 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
 * http://www.openpgp.org
 
 
+== Features
+
+* Encodes and decodes ASCII-armored OpenPGP messages.
+* Parses OpenPGP messages into their constituent packets.
+  * Supports both old-format (PGP 2.6.x) and new-format (RFC 4880) packets.
+
+
 == Download
 
+To get a local working copy of the development repository, do:
+
   % git clone git://github.com/bendiken/openpgp.git
+
+Alternatively, you can download the latest development version as a tarball
+as follows:
+
+  % wget http://github.com/bendiken/openpgp/tarball/master
 
 
 == Installation
