@@ -1,19 +1,19 @@
 module OpenPGP
   module Algorithm
     ##
-    # OpenPGP Public-Key Algorithms.
+    # OpenPGP public-key algorithms.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-9.1
     module Asymmetric
       RSA         = 1
-      RSA_ENCRYPT = 2
-      RSA_SIGN    = 3
-      ELGAMAL     = 16
+      RSA_E       = 2
+      RSA_S       = 3
+      ELG_E       = 16
       DSA         = 17
     end
 
     ##
-    # OpenPGP Symmetric-Key Algorithms.
+    # OpenPGP symmetric-key algorithms.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-9.2
     module Symmetric
@@ -22,6 +22,7 @@ module OpenPGP
       TRIPLEDES   = 2
       CAST5       = 3
       BLOWFISH    = 4
+      AES         = 7
       AES128      = 7
       AES192      = 8
       AES256      = 9
@@ -29,7 +30,7 @@ module OpenPGP
     end
 
     ##
-    # OpenPGP Compression Algorithms.
+    # OpenPGP compression algorithms.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-9.3
     module Compression
@@ -40,7 +41,7 @@ module OpenPGP
     end
 
     ##
-    # OpenPGP Hash Algorithms.
+    # OpenPGP hash algorithms.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-9.4
     module Hash
