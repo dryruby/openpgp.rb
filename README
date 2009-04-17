@@ -1,0 +1,44 @@
+== OpenPGP.rb
+
+This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
+
+
+=== About OpenPGP
+
+OpenPGP is the most widely-used e-mail encryption standard in the world. It
+is defined by the OpenPGP Working Group of the Internet Engineering Task
+Force (IETF) Proposed Standard RFC 4880. The OpenPGP standard was originally
+derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
+1991.
+
+* http://tools.ietf.org/html/rfc4880
+* http://www.openpgp.org/
+
+
+== Download
+
+  % git clone git://github.com/bendiken/openpgp.git
+
+
+== Installation
+
+The recommended installation method is via RubyGems. To install the latest
+official release from RubyForge, do:
+
+  % [sudo] gem install openpgp
+
+To use the very latest bleeding-edge development version, install the gem
+directly from GitHub as follows:
+
+  % [sudo] gem install bendiken-openpgp -s http://gems.github.com
+
+
+== Authors
+
+* Arto Bendiken (mailto:arto.bendiken@gmail.com) - http://ar.to
+
+
+== License
+
+All source code is available under the terms of the MIT license. For more
+information, see the accompanying LICENSE file.
