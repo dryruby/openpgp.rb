@@ -25,12 +25,25 @@ end
 
 task :default => :test
 
+gem 'rdoc' # require RDoc 2.x
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION').chomp : ''
 
   rdoc.rdoc_dir = 'doc/rdoc'
-  rdoc.title = "OpenPGP #{version}"
+  rdoc.title = "OpenPGP.rb #{version} Documentation"
   rdoc.rdoc_files.include('README*', 'LICENSE')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+require 'yard'
+YARD::Rake::YardocTask.new do |yard|
+  yard.files   = ['lib/**/*.rb', 'README*', 'LICENSE']
+  yard.options = ['--output-dir=doc/yard']
+end
+
+desc "Generate YARD Documentation (with title)"
+task :yardocs => :yardoc do
+  version = File.exist?('VERSION') ? File.read('VERSION').chomp : ''
+  exec "sed -i 's/YARD Documentation/OpenPGP.rb #{version} Documentation/' doc/yard/index.html"
 end

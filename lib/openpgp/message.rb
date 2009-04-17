@@ -21,7 +21,7 @@ module OpenPGP
       @packets = packets
     end
 
-    def each(&block)
+    def each(&block) # :yields: packet
       packets.each(&block)
     end
 
