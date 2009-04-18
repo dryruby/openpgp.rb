@@ -20,6 +20,40 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
 * Encodes and decodes ASCII-armored OpenPGP messages.
 * Parses OpenPGP messages into their constituent packets.
   * Supports both old-format (PGP 2.6.x) and new-format (RFC 4880) packets.
+* Includes a GnuPG wrapper for features that are not natively supported.
+
+
+== Examples
+
+  require 'openpgp'
+
+
+=== Decoding an ASCII-armored message
+
+  require 'open-uri'
+  text = open('http://ar.to/pgp.txt').read
+
+  msg = OpenPGP::Message.parse(OpenPGP.dearmor(text))
+
+
+=== Generating a new keypair
+
+  gpg = OpenPGP::GnuPG.new(:homedir => '~/.gnupg')
+  key_id = gpg.gen_key({
+    :key_type      => 'DSA',
+    :key_length    => 1024,
+    :subkey_type   => 'ELG-E',
+    :subkey_length => 1024,
+    :name          => 'J. Random Hacker',
+    :comment       => nil,
+    :email         => 'jhacker@example.org',
+    :passphrase    => 'secret passphrase',
+  })
+
+
+== Documentation
+
+* http://openpgp.rubyforge.org/
 
 
 == Download
