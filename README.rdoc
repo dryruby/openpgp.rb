@@ -53,7 +53,7 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
 
 == Documentation
 
-* http://openpgp.rubyforge.org/
+* http://openpgp.rubyforge.org
 
 
 == Download
