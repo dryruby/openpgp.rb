@@ -3,7 +3,7 @@
 
 GEMSPEC = Gem::Specification.new do |gem|
   gem.name               = 'openpgp'
-  gem.version            = '0.0.1'
+  gem.version            = '0.0.1.1'
   gem.date               = '2009-04-18'
   gem.homepage           = 'http://github.com/bendiken/openpgp'
   gem.license            = 'MIT' if gem.respond_to?(:license=)
