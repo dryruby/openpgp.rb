@@ -1,47 +1,34 @@
+#!/usr/bin/env ruby -rubygems
 # -*- encoding: utf-8 -*-
 
-Gem::Specification.new do |s|
-  s.name = %q{openpgp}
-  s.version = "0.0.0"
+GEMSPEC = Gem::Specification.new do |gem|
+  gem.name               = 'openpgp'
+  gem.version            = '0.0.0'
+  gem.date               = '2009-04-18'
+  gem.homepage           = 'http://github.com/bendiken/openpgp'
+  gem.license            = 'MIT' if gem.respond_to?(:license=)
+  gem.summary            = 'A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).'
+  gem.description        = <<-EOF
+    OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
+  EOF
+  gem.rubyforge_project  = 'openpgp'
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Arto Bendiken"]
-  s.date = %q{2009-04-16}
-  s.default_executable = %q{openpgp}
-  s.description = %q{OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).}
-  s.email = %q{arto.bendiken@gmail.com}
-  s.executables = ["openpgp"]
-  s.extra_rdoc_files = [
-    "LICENSE",
-    "README"
-  ]
-  s.files = [
-    "LICENSE",
-    "README",
-    "Rakefile",
-    "VERSION",
-    "bin/openpgp",
-    "lib/openpgp.rb",
-    "lib/openpgp/algorithm.rb",
-    "lib/openpgp/armor.rb",
-    "lib/openpgp/message.rb",
-    "lib/openpgp/packet.rb",
-    "lib/openpgp/version.rb"
-  ]
-  s.has_rdoc = true
-  s.homepage = %q{http://github.com/bendiken/openpgp}
-  s.rdoc_options = ["--charset=UTF-8"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.2}
-  s.summary = %q{A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).}
+  gem.author             = 'Arto Bendiken'
+  gem.email              = 'arto.bendiken@gmail.com'
 
-  if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
-    s.specification_version = 3
+  gem.platform           = Gem::Platform::RUBY
+  gem.files              = %w(LICENSE README README.rdoc Rakefile VERSION bin/openpgp lib/openpgp.rb lib/openpgp/algorithm.rb lib/openpgp/armor.rb lib/openpgp/gnupg.rb lib/openpgp/message.rb lib/openpgp/packet.rb lib/openpgp/version.rb)
+  gem.files             -= %w(README.rdoc) # only for GitHub
+  gem.bindir             = %q(bin)
+  gem.executables        = %w(openpgp)
+  gem.default_executable = gem.executables.first
+  gem.require_paths      = %w(lib)
+  gem.extensions         = %w()
+  gem.test_files         = %w()
+  gem.has_rdoc           = false
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-    else
-    end
-  else
-  end
+  gem.required_ruby_version  = '>= 1.8.2'
+  gem.requirements           = ['GnuPG >= 1.4.7 (not required, but enables extra functionality)']
+  gem.add_development_dependency 'rakefile'
+  gem.post_install_message   = nil
 end
