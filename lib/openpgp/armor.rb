@@ -1,17 +1,5 @@
 module OpenPGP
   ##
-  # Alias for OpenPGP::Armor.encode().
-  def self.enarmor(data, marker = 'MESSAGE', headers = {})
-    Armor.encode(data, marker, headers)
-  end
-
-  ##
-  # Alias for OpenPGP::Armor.decode().
-  def self.dearmor(text, marker = nil)
-    Armor.decode(text, marker)
-  end
-
-  ##
   # OpenPGP ASCII Armor utilities.
   #
   # @see http://tools.ietf.org/html/rfc4880#section-6.2
