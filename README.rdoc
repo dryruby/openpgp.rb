@@ -2,6 +2,11 @@
 
 This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 
+* http://openpgp.rubyforge.org
+* http://github.com/bendiken/openpgp
+* http://rubyforge.org/projects/openpgp
+* http://www.ohloh.net/p/openpgp
+
 
 === About OpenPGP
 
