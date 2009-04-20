@@ -11,7 +11,7 @@ task :yardocs => :yardoc do
 
   # TODO: investigate why YARD doesn't auto-link URLs like RDoc does
   html = File.read(file = 'doc/yard/readme.html')
-  html.gsub!(/>(http:\/\/)([\w\d\.\/]+)/, '><a href="\1\2" target="_blank">\2</a>')
+  html.gsub!(/>(http:\/\/)([\w\d\.\/\-]+)/, '><a href="\1\2" target="_blank">\2</a>')
   html.gsub!(/(http:\/\/ar\.to\/[\w\d\.\/]+)/, '<a href="\1">\1</a>')
   html.gsub!(/(http:\/\/ar\.to)([^\/]+)/, '<a href="\1" target="_top">ar.to</a>\2')
   html.gsub!(/(mailto:[^\)]+)/, '<a href="\1">\1</a>')
