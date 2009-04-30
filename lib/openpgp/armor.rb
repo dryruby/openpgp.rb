@@ -37,7 +37,7 @@ module OpenPGP
       text << self.header(marker)     << "\n"
       headers.each { |key, value| text << "#{key}: #{value}\n" }
       text << "\n" << Base64.encode64(data)
-      text << "="  << Base64.encode64([self.crc24(data)].pack('N')[1, 3])
+      text << "="  << Base64.encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
       text << self.footer(marker)     << "\n"
       text.string
     end
@@ -75,26 +75,6 @@ module OpenPGP
         end
       end
       data.string
-    end
-
-    ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6.1
-    CRC24_INIT = 0x00b704ce
-    CRC24_POLY = 0x01864cfb
-
-    ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6
-    # @see http://tools.ietf.org/html/rfc4880#section-6.1
-    def self.crc24(data)
-      crc = CRC24_INIT
-      data.each_byte do |octet|
-        crc ^= octet << 16
-        8.times do
-          crc <<= 1
-          crc ^= CRC24_POLY if (crc & 0x01000000).nonzero?
-        end
-      end
-      crc &= 0x00ffffff
     end
   end
 
