@@ -29,7 +29,7 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     # @see http://tools.ietf.org/html/rfc2045
-    def self.encode(data, marker = 'MESSAGE', headers = {})
+    def self.encode(data, marker = :MESSAGE, headers = {})
       text = StringIO.new
       text << self.header(marker)     << "\n"
       headers.each { |key, value| text << "#{key}: #{value}\n" }
