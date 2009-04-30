@@ -144,7 +144,7 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-12
     class PublicKey < Packet
       attr_accessor :version, :timestamp, :algorithm
-      attr_accessor :key, :key_fields
+      attr_accessor :key, :key_fields, :key_id, :fingerprint
 
       def initialize(tag = nil, data = nil)
         super
@@ -164,21 +164,13 @@ module OpenPGP
       # @see http://tools.ietf.org/html/rfc4880#section-5.5.2
       def read_key_material
         @key_fields = case algorithm
-          when Algorithm::Asymmetric::RSA
-            [:n, :e]
-          when Algorithm::Asymmetric::ELG_E
-            [:p, :g, :y]
-          when Algorithm::Asymmetric::DSA
-            [:p, :q, :g, :y]
-          else
-            raise "Unknown OpenPGP key algorithm: #{algorithm}"
+          when Algorithm::Asymmetric::RSA   then [:n, :e]
+          when Algorithm::Asymmetric::ELG_E then [:p, :g, :y]
+          when Algorithm::Asymmetric::DSA   then [:p, :q, :g, :y]
+          else raise "Unknown OpenPGP key algorithm: #{algorithm}"
         end
         @key_fields.each { |field| key[field] = read_mpi }
-        key_id
-      end
-
-      def key_id
-        @key_id ||= fingerprint[-8..-1]
+        @key_id = fingerprint[-8..-1]
       end
 
       ##
