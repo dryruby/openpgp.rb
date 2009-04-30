@@ -14,7 +14,6 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
-      require 'stringio'
       data = StringIO.new(data.to_str) if data.respond_to?(:to_str)
 
       unless data.eof?
@@ -79,6 +78,32 @@ module OpenPGP
     end
 
     ##
+    # @see http://tools.ietf.org/html/rfc4880#section-3.5
+    def read_timestamp
+      read_unpacked(4, 'N')
+    end
+
+    ##
+    # @see http://tools.ietf.org/html/rfc4880#section-3.2
+    def read_mpi
+      length = read_unpacked(2, 'n')      # length in bits
+      length = ((length + 7) / 8.0).floor # length in bytes
+      read_bytes(length)
+    end
+
+    def read_unpacked(count, format)
+      read_bytes(count).unpack(format).first
+    end
+
+    def read_byte
+      data.getc
+    end
+
+    def read_bytes(count)
+      data.read(count)
+    end
+
+    ##
     # OpenPGP Public-Key Encrypted Session Key packet (tag 1).
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.1
@@ -118,7 +143,62 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-11.1
     # @see http://tools.ietf.org/html/rfc4880#section-12
     class PublicKey < Packet
-      # TODO
+      attr_accessor :version, :timestamp, :algorithm
+      attr_accessor :key, :key_fields
+
+      def initialize(tag = nil, data = nil)
+        super
+        @data = StringIO.new(@data.to_str)
+        @key  = {}
+
+        case @version = @data.getc
+          when 2, 3
+            # TODO
+          when 4
+            @timestamp, @algorithm = read_timestamp, read_byte
+            read_key_material
+        end
+      end
+
+      ##
+      # @see http://tools.ietf.org/html/rfc4880#section-5.5.2
+      def read_key_material
+        @key_fields = case algorithm
+          when Algorithm::Asymmetric::RSA
+            [:n, :e]
+          when Algorithm::Asymmetric::ELG_E
+            [:p, :g, :y]
+          when Algorithm::Asymmetric::DSA
+            [:p, :q, :g, :y]
+          else
+            raise "Unknown OpenPGP key algorithm: #{algorithm}"
+        end
+        @key_fields.each { |field| key[field] = read_mpi }
+        key_id
+      end
+
+      def key_id
+        @key_id ||= fingerprint[-8..-1]
+      end
+
+      ##
+      # @see http://tools.ietf.org/html/rfc4880#section-12.2
+      # @see http://tools.ietf.org/html/rfc4880#section-3.3
+      def fingerprint
+        @fingerprint ||= case version
+          when 2, 3
+            require 'digest/md5'
+            Digest::MD5.hexdigest([key[:n], key[:e]].join)
+          when 4
+            require 'digest/sha1'
+            material = [0x99.chr, [size].pack('n'), version.chr, [timestamp].pack('N'), algorithm.chr]
+            @key_fields.each do |key_field|
+              material << [OpenPGP.bitlength(key[key_field])].pack('n')
+              material << key[key_field]
+            end
+            Digest::SHA1.hexdigest(material.join)
+        end
+      end
     end
 
     ##
