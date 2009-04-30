@@ -1,3 +1,6 @@
+require 'stringio'
+require 'base64'
+
 module OpenPGP
   ##
   # Alias for OpenPGP::Armor.encode().

@@ -14,7 +14,6 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-4.1
     # @see http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
-      require 'stringio'
       data = StringIO.new(data.to_str) if data.respond_to?(:to_str)
 
       msg = self.new

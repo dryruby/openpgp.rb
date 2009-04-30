@@ -30,9 +30,6 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     # @see http://tools.ietf.org/html/rfc2045
     def self.encode(data, marker = 'MESSAGE', headers = {})
-      require 'stringio'
-      require 'base64'
-
       text = StringIO.new
       text << self.header(marker)     << "\n"
       headers.each { |key, value| text << "#{key}: #{value}\n" }
@@ -46,9 +43,6 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc2045
     def self.decode(text, marker = nil)
-      require 'stringio'
-      require 'base64'
-
       data, crc, state = StringIO.new, nil, :begin
       text.each_line do |line|
         line.chomp!
