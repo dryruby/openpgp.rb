@@ -137,7 +137,55 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.2
     class Signature < Packet
-      # TODO
+      attr_accessor :version, :type
+      attr_accessor :key_algorithm, :hash_algorithm
+      attr_accessor :key_id
+      attr_accessor :fields
+
+      def initialize(tag = nil, data = nil)
+        super
+        case @version = read_byte
+          when 3 then read_v3_signature
+          when 4 then read_v4_signature
+          else raise "Invalid OpenPGP signature packet version: #{@version}"
+        end
+      end
+
+      protected
+
+        ##
+        # @see http://tools.ietf.org/html/rfc4880#section-5.2.2
+        def read_v3_signature
+          raise "Invalid OpenPGP signature packet V3 header" if read_byte != 5
+          @type, @timestamp, @key_id = read_byte, read_number(4), read_number(8, 16)
+          @key_algorithm, @hash_algorithm = read_byte, read_byte
+          read_bytes(2)
+          read_signature
+        end
+
+        ##
+        # @see http://tools.ietf.org/html/rfc4880#section-5.2.3
+        def read_v4_signature
+          @type = read_byte
+          @key_algorithm, @hash_algorithm = read_byte, read_byte
+          read_bytes(hashed_count = read_number(2))
+          read_bytes(unhashed_count = read_number(2))
+          read_bytes(2)
+          read_signature
+        end
+
+        ##
+        # @see http://tools.ietf.org/html/rfc4880#section-5.2.2
+        def read_signature
+          case key_algorithm
+            when Algorithm::Asymmetric::RSA
+              @fields = [read_mpi]
+            when Algorithm::Asymmetric::DSA
+              @fields = [read_mpi, read_mpi]
+            else
+              raise "Unknown OpenPGP signature packet public-key algorithm: #{key_algorithm}"
+          end
+        end
     end
 
     ##
@@ -341,7 +389,17 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.13
     class IntegrityProtectedData < Packet
-      # TODO
+      attr_accessor :version
+
+      def initialize(tag = nil, data = nil)
+        super
+        case @version = read_byte
+          when 1
+            # TODO: read the encrypted data.
+          else
+            raise "Invalid OpenPGP integrity-protected data packet version: #{@version}"
+        end
+      end
     end
 
     ##
