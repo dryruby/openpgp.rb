@@ -5,9 +5,11 @@ module OpenPGP
   # @see http://tools.ietf.org/html/rfc4880#section-4.1
   # @see http://tools.ietf.org/html/rfc4880#section-4.3
   class Packet
-    attr_accessor :tag
-    attr_accessor :size
-    attr_accessor :data
+    attr_accessor :tag, :size, :data
+
+    def self.for(tag)
+      @@tags[tag.to_i] || self
+    end
 
     ##
     # Parses an OpenPGP packet.
@@ -69,18 +71,25 @@ module OpenPGP
       Packet.for(tag).new(tag, data_length ? data.read(data_length) : data.read)
     end
 
-    def self.for(tag)
-      @@tags[tag.to_i] || self
-    end
-
     def initialize(tag = nil, data = nil)
       @tag, @data, @size = tag, data, data ? data.size : 0
+      @data = StringIO.new(@data.to_str) # FIXME
     end
 
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-3.5
     def read_timestamp
       read_unpacked(4, 'N')
+    end
+
+    ##
+    # @see http://tools.ietf.org/html/rfc4880#section-3.1
+    def read_number(count, base = nil)
+      number, shift = 0, count * 8
+      read_bytes(count).each_byte do |octet|
+        number += octet << (shift -= 8)
+      end
+      !base ? number : number.to_s(base).upcase
     end
 
     ##
@@ -107,8 +116,20 @@ module OpenPGP
     # OpenPGP Public-Key Encrypted Session Key packet (tag 1).
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.1
+    # @see http://tools.ietf.org/html/rfc4880#section-13.1
     class AsymmetricSessionKey < Packet
-      # TODO
+      attr_accessor :version, :key_id, :algorithm
+
+      def initialize(tag = nil, data = nil)
+        super
+        case @version = read_byte
+          when 3
+            @key_id, @algorithm = read_number(8, 16), read_byte
+            # TODO: read the encrypted session key.
+          else
+            raise "Invalid OpenPGP session-key packet version: #{@version}"
+        end
+      end
     end
 
     ##
@@ -148,15 +169,16 @@ module OpenPGP
 
       def initialize(tag = nil, data = nil)
         super
-        @data = StringIO.new(@data.to_str)
-        @key  = {}
+        @key = {}
 
-        case @version = @data.getc
+        case @version = read_byte
           when 2, 3
             # TODO
           when 4
             @timestamp, @algorithm = read_timestamp, read_byte
             read_key_material
+          else
+            raise "Invalid OpenPGP public-key packet version: #{@version}"
         end
       end
 
@@ -180,7 +202,7 @@ module OpenPGP
         @fingerprint ||= case version
           when 2, 3
             require 'digest/md5'
-            Digest::MD5.hexdigest([key[:n], key[:e]].join)
+            Digest::MD5.hexdigest([key[:n], key[:e]].join).upcase
           when 4
             require 'digest/sha1'
             material = [0x99.chr, [size].pack('n'), version.chr, [timestamp].pack('N'), algorithm.chr]
@@ -188,7 +210,7 @@ module OpenPGP
               material << [OpenPGP.bitlength(key[key_field])].pack('n')
               material << key[key_field]
             end
-            Digest::SHA1.hexdigest(material.join)
+            Digest::SHA1.hexdigest(material.join).upcase
         end
       end
     end
