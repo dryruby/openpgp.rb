@@ -7,8 +7,16 @@ module OpenPGP
   class Packet
     attr_accessor :tag, :size, :data
 
+    ##
+    # Returns the implementation class for a packet tag.
     def self.for(tag)
       @@tags[tag.to_i] || self
+    end
+
+    ##
+    # Returns the packet tag for this class.
+    def self.tag
+      @@tags.index(self)
     end
 
     ##
@@ -16,7 +24,7 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
-      data = StringIO.new(data.to_str) if data.respond_to?(:to_str)
+      data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
 
       unless data.eof?
         new = ((tag = data.getc) & 64).nonzero? # bit 6 indicates new packet format if set
@@ -44,7 +52,7 @@ module OpenPGP
           data_length = (data.getc << 24) | (data.getc << 16) | (data.getc << 8) | data.getc
       end
 
-      Packet.for(tag).new(tag, data.read(data_length))
+      Packet.for(tag).parse_body(Buffer.new(data.read(data_length)), :tag => tag)
     end
 
     ##
@@ -68,48 +76,25 @@ module OpenPGP
           raise "Invalid OpenPGP packet length-type: expected 0..3 but got #{len}"
       end
 
-      Packet.for(tag).new(tag, data_length ? data.read(data_length) : data.read)
-    end
-
-    def initialize(tag = nil, data = nil)
-      @tag, @data, @size = tag, data, data ? data.size : 0
-      @data = StringIO.new(@data.to_str) # FIXME
+      Packet.for(tag).parse_body(Buffer.new(data_length ? data.read(data_length) : data.read), :tag => tag)
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-3.5
-    def read_timestamp
-      read_unpacked(4, 'N')
+    def self.parse_body(body)
+      raise NotImplementedError, "#{self.name} body parsing not implemented yet"
     end
 
-    ##
-    # @see http://tools.ietf.org/html/rfc4880#section-3.1
-    def read_number(count, base = nil)
-      number, shift = 0, count * 8
-      read_bytes(count).each_byte do |octet|
-        number += octet << (shift -= 8)
-      end
-      !base ? number : number.to_s(base).upcase
+    def initialize(options = {}, &block)
+      options.each { |k, v| send("#{k}=", v) }
+      block.call(self) if block_given?
     end
 
-    ##
-    # @see http://tools.ietf.org/html/rfc4880#section-3.2
-    def read_mpi
-      length = read_unpacked(2, 'n')      # length in bits
-      length = ((length + 7) / 8.0).floor # length in bytes
-      read_bytes(length)
-    end
+    #def to_s() body end
 
-    def read_unpacked(count, format)
-      read_bytes(count).unpack(format).first
-    end
+    def size() body.size end
 
-    def read_byte
-      data.getc
-    end
-
-    def read_bytes(count)
-      data.read(count)
+    def body
+      respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) } : ""
     end
 
     ##
@@ -120,14 +105,13 @@ module OpenPGP
     class AsymmetricSessionKey < Packet
       attr_accessor :version, :key_id, :algorithm
 
-      def initialize(tag = nil, data = nil)
-        super
-        case @version = read_byte
+      def self.parse_body(body, options = {})
+        case version = body.read_byte
           when 3
-            @key_id, @algorithm = read_number(8, 16), read_byte
+            self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte)
             # TODO: read the encrypted session key.
           else
-            raise "Invalid OpenPGP session-key packet version: #{@version}"
+            raise "Invalid OpenPGP session-key packet version: #{version}"
         end
       end
     end
@@ -142,12 +126,11 @@ module OpenPGP
       attr_accessor :key_id
       attr_accessor :fields
 
-      def initialize(tag = nil, data = nil)
-        super
-        case @version = read_byte
-          when 3 then read_v3_signature
-          when 4 then read_v4_signature
-          else raise "Invalid OpenPGP signature packet version: #{@version}"
+      def self.parse_body(body, options = {})
+        case version = body.read_byte
+          when 3 then self.new(:version => 3).send(:read_v3_signature, body)
+          when 4 then self.new(:version => 4).send(:read_v4_signature, body)
+          else raise "Invalid OpenPGP signature packet version: #{version}"
         end
       end
 
@@ -155,33 +138,35 @@ module OpenPGP
 
         ##
         # @see http://tools.ietf.org/html/rfc4880#section-5.2.2
-        def read_v3_signature
-          raise "Invalid OpenPGP signature packet V3 header" if read_byte != 5
-          @type, @timestamp, @key_id = read_byte, read_number(4), read_number(8, 16)
-          @key_algorithm, @hash_algorithm = read_byte, read_byte
-          read_bytes(2)
-          read_signature
+        def read_v3_signature(body)
+          raise "Invalid OpenPGP signature packet V3 header" if body.read_byte != 5
+          @type, @timestamp, @key_id = body.read_byte, body.read_number(4), body.read_number(8, 16)
+          @key_algorithm, @hash_algorithm = body.read_byte, body.read_byte
+          body.read_bytes(2)
+          read_signature(body)
+          self
         end
 
         ##
         # @see http://tools.ietf.org/html/rfc4880#section-5.2.3
-        def read_v4_signature
-          @type = read_byte
-          @key_algorithm, @hash_algorithm = read_byte, read_byte
-          read_bytes(hashed_count = read_number(2))
-          read_bytes(unhashed_count = read_number(2))
-          read_bytes(2)
-          read_signature
+        def read_v4_signature(body)
+          @type = body.read_byte
+          @key_algorithm, @hash_algorithm = body.read_byte, body.read_byte
+          body.read_bytes(hashed_count = body.read_number(2))
+          body.read_bytes(unhashed_count = body.read_number(2))
+          body.read_bytes(2)
+          read_signature(body)
+          self
         end
 
         ##
         # @see http://tools.ietf.org/html/rfc4880#section-5.2.2
-        def read_signature
+        def read_signature(body)
           case key_algorithm
             when Algorithm::Asymmetric::RSA
-              @fields = [read_mpi]
+              @fields = [body.read_mpi]
             when Algorithm::Asymmetric::DSA
-              @fields = [read_mpi, read_mpi]
+              @fields = [body.read_mpi, body.read_mpi]
             else
               raise "Unknown OpenPGP signature packet public-key algorithm: #{key_algorithm}"
           end
@@ -212,34 +197,34 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-11.1
     # @see http://tools.ietf.org/html/rfc4880#section-12
     class PublicKey < Packet
+      attr_accessor :size
       attr_accessor :version, :timestamp, :algorithm
       attr_accessor :key, :key_fields, :key_id, :fingerprint
 
-      def initialize(tag = nil, data = nil)
-        super
-        @key = {}
-
-        case @version = read_byte
+      #def parse(data) # FIXME
+      def self.parse_body(body, options = {})
+        case version = body.read_byte
           when 2, 3
             # TODO
           when 4
-            @timestamp, @algorithm = read_timestamp, read_byte
-            read_key_material
+            packet = self.new(:version => version, :timestamp => body.read_timestamp, :algorithm => body.read_byte, :key => {}, :size => body.size)
+            packet.read_key_material(body)
+            packet
           else
-            raise "Invalid OpenPGP public-key packet version: #{@version}"
+            raise "Invalid OpenPGP public-key packet version: #{version}"
         end
       end
 
       ##
       # @see http://tools.ietf.org/html/rfc4880#section-5.5.2
-      def read_key_material
+      def read_key_material(body)
         @key_fields = case algorithm
           when Algorithm::Asymmetric::RSA   then [:n, :e]
           when Algorithm::Asymmetric::ELG_E then [:p, :g, :y]
           when Algorithm::Asymmetric::DSA   then [:p, :q, :g, :y]
           else raise "Unknown OpenPGP key algorithm: #{algorithm}"
         end
-        @key_fields.each { |field| key[field] = read_mpi }
+        @key_fields.each { |field| key[field] = body.read_mpi }
         @key_id = fingerprint[-8..-1]
       end
 
@@ -254,7 +239,7 @@ module OpenPGP
           when 4
             require 'digest/sha1'
             material = [0x99.chr, [size].pack('n'), version.chr, [timestamp].pack('N'), algorithm.chr]
-            @key_fields.each do |key_field|
+            key_fields.each do |key_field|
               material << [OpenPGP.bitlength(key[key_field])].pack('n')
               material << key[key_field]
             end
@@ -309,7 +294,7 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.7
     class EncryptedData < Packet
-      # TODO
+      attr_accessor :plaintext
     end
 
     ##
@@ -325,7 +310,42 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.9
     class LiteralData < Packet
-      # TODO
+      EYES_ONLY = '_CONSOLE'
+
+      attr_accessor :format
+      attr_accessor :filename
+      attr_accessor :timestamp
+      attr_accessor :data
+
+      def self.parse_body(body, options = {})
+        defaults = {
+          :format    => body.read_byte.chr.to_sym,
+          :filename  => body.read_string,
+          :timestamp => body.read_timestamp,
+          :data      => body.read,
+        }
+        self.new(defaults.merge(options))
+      end
+
+      def initialize(options = {}, &block)
+        defaults = {
+          :format    => :b,
+          :filename  => "",
+          :timestamp => 0,
+          :data      => "",
+        }
+        super(defaults.merge(options), &block)
+      end
+
+      def write_body(buffer)
+        buffer.write_byte(format)
+        buffer.write_string(filename)
+        buffer.write_timestamp(timestamp)
+        buffer.write(data.to_s)
+      end
+
+      def eyes_only!() filename = EYES_ONLY end
+      def eyes_only?() filename == EYES_ONLY end
     end
 
     ##
@@ -344,23 +364,22 @@ module OpenPGP
     class UserID < Packet
       attr_accessor :name, :comment, :email
 
-      def initialize(tag = nil, data = nil)
-        super
-        case data
+      def self.parse_body(body, options = {})
+        case body.read
           # User IDs of the form: "name (comment) <email>"
           when /^([^\(]+)\(([^\)]+)\)\s+<([^>]+)>$/
-            @name, @comment, @email = $1, $2, $3
+            self.new(:name => $1, :comment => $2, :email => $3)
           # User IDs of the form: "name <email>"
           when /^([^<]+)\s+<([^>]+)>$/
-            @name, @comment, @email = $1, nil, $2
+            self.new(:name => $1, :comment => nil, :email => $2)
           # User IDs of the form: "name"
           when /^([^<]+)$/
-            @name, @comment, @email = $1, nil, nil
+            self.new(:name => $1, :comment => nil, :email => nil)
           # User IDs of the form: "<email>"
           when /^<([^>]+)>$/
-            @name, @comment, @email = nil, nil, $2
+            self.new(:name => nil, :comment => nil, :email => $1)
           else
-            @name, @comment, @email = nil
+            self.new(:name => nil, :comment => nil, :email => nil)
         end
       end
 
@@ -391,13 +410,12 @@ module OpenPGP
     class IntegrityProtectedData < Packet
       attr_accessor :version
 
-      def initialize(tag = nil, data = nil)
-        super
-        case @version = read_byte
+      def self.parse_body(body, options = {})
+        case version = body.read_byte
           when 1
-            # TODO: read the encrypted data.
+            self.new(:version => version) # TODO: read the encrypted data.
           else
-            raise "Invalid OpenPGP integrity-protected data packet version: #{@version}"
+            raise "Invalid OpenPGP integrity-protected data packet version: #{version}"
         end
       end
     end

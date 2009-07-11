@@ -50,5 +50,17 @@ module OpenPGP
     def size
       inject(0) { |sum, packet| sum + packet.size }
     end
+
+    def to_s
+      Buffer.write do |buffer|
+        packets.each do |packet|
+          if body = packet.body
+            buffer.write_byte(packet.class.tag | 0xC0)
+            buffer.write_byte(body.size)
+            buffer.write_bytes(body)
+          end
+        end
+      end
+    end
   end
 end

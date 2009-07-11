@@ -1,4 +1,3 @@
-require 'stringio'
 require 'base64'
 
 module OpenPGP
