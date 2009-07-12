@@ -6,6 +6,8 @@ module OpenPGP
   # @see http://tools.ietf.org/html/rfc4880#section-11
   # @see http://tools.ietf.org/html/rfc4880#section-11.3
   class Message
+    include Enumerable
+
     attr_accessor :packets
 
     ##
@@ -27,8 +29,8 @@ module OpenPGP
       msg
     end
 
-    def initialize(packets = [])
-      @packets = packets
+    def initialize(*packets)
+      @packets = packets.flatten
     end
 
     def each(&block) # :yields: packet
