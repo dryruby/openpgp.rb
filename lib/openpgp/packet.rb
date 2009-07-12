@@ -80,7 +80,7 @@ module OpenPGP
     end
 
     ##
-    def self.parse_body(body)
+    def self.parse_body(body, options = {})
       raise NotImplementedError, "#{self.name} body parsing not implemented yet"
     end
 
@@ -111,7 +111,7 @@ module OpenPGP
             self.new(:version => version, :key_id => body.read_number(8, 16), :algorithm => body.read_byte)
             # TODO: read the encrypted session key.
           else
-            raise "Invalid OpenPGP session-key packet version: #{version}"
+            raise "Invalid OpenPGP public-key ESK packet version: #{version}"
         end
       end
     end
@@ -178,7 +178,16 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.3
     class SymmetricSessionKey < Packet
-      # TODO
+      attr_accessor :version, :algorithm, :s2k
+
+      def self.parse_body(body, options = {})
+        case version = body.read_byte
+          when 4
+            self.new(:version => version, :algorithm => body.read_byte, :s2k => body.read_s2k)
+          else
+            raise "Invalid OpenPGP symmetric-key ESK packet version: #{version}"
+        end
+      end
     end
 
     ##
@@ -295,6 +304,10 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-5.7
     class EncryptedData < Packet
       attr_accessor :plaintext
+
+      def self.parse_body(body, options = {})
+        self.new # TODO
+      end
     end
 
     ##
@@ -310,12 +323,7 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.9
     class LiteralData < Packet
-      EYES_ONLY = '_CONSOLE'
-
-      attr_accessor :format
-      attr_accessor :filename
-      attr_accessor :timestamp
-      attr_accessor :data
+      attr_accessor :format, :filename, :timestamp, :data
 
       def self.parse_body(body, options = {})
         defaults = {
@@ -343,6 +351,8 @@ module OpenPGP
         buffer.write_timestamp(timestamp)
         buffer.write(data.to_s)
       end
+
+      EYES_ONLY = '_CONSOLE'
 
       def eyes_only!() filename = EYES_ONLY end
       def eyes_only?() filename == EYES_ONLY end
@@ -381,6 +391,10 @@ module OpenPGP
           else
             self.new(:name => nil, :comment => nil, :email => nil)
         end
+      end
+
+      def write_body(buffer)
+        buffer.write(to_s)
       end
 
       def to_s
