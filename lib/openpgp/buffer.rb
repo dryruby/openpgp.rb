@@ -82,6 +82,14 @@ module OpenPGP
       end
     end
 
+    def write_s2k(s2k)
+      write_byte(s2k[:mode])
+      write_byte(s2k[:algorithm]) if s2k.has_key?(:algorithm)
+      write_bytes(s2k[:salt])     if s2k.has_key?(:salt) # FIXME
+      write_byte(s2k[:count])     if s2k.has_key?(:count) # FIXME
+      write_bytes(s2k[:data])     if s2k.has_key?(:data)
+    end
+
     def read_unpacked(count, format)
       read_bytes(count).unpack(format).first
     end
