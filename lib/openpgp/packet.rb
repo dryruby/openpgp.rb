@@ -363,7 +363,15 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.10
     class Trust < Packet
-      # TODO
+      attr_accessor :data
+
+      def self.parse_body(body, options = {})
+        self.new({:data => body.read}.merge(options))
+      end
+
+      def write_body(buffer)
+        buffer.write(data)
+      end
     end
 
     ##
