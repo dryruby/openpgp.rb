@@ -27,6 +27,8 @@ module OpenPGP
       @engine ||= self.class.const_get(:ENGINE).new('ECB')
     end
 
+    ##
+    # @see http://tools.ietf.org/html/rfc4880#section-13.9
     def encrypt(plaintext)
       ciphertext = String.new
 
