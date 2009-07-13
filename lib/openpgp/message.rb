@@ -11,12 +11,44 @@ module OpenPGP
     attr_accessor :packets
 
     ##
+    # Creates an encrypted OpenPGP message.
+    def self.encrypt(data, options = {}, &block)
+      if options[:symmetric]
+        key    = (options[:key]    || Digest::SHA1.digest(options[:passphrase]))
+        cipher = (options[:cipher] || Cipher::AES128).new(key)
+
+        msg    = self.new do |msg|
+          msg << Packet::SymmetricSessionKey.new(:algorithm => cipher.identifier)
+          msg << Packet::EncryptedData.new do |packet|
+            plaintext = self.write do |msg|
+              case data
+                when Message then data.each { |packet| msg << packet }
+                when Packet  then msg << data
+                else msg << Packet::LiteralData.new(:data => data)
+              end
+            end
+            packet.data = cipher.encrypt(plaintext)
+          end
+        end
+
+        block_given? ? block.call(msg) : msg
+      else
+        raise NotImplementedError # TODO
+      end
+    end
+
+    ##
+    def self.decrypt(data, options = {}, &block)
+      raise NotImplementedError # TODO
+    end
+
+    ##
     # Parses an OpenPGP message.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-4.1
     # @see http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
-      data = StringIO.new(data.to_str) if data.respond_to?(:to_str)
+      data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
 
       msg = self.new
       until data.eof?
@@ -29,8 +61,13 @@ module OpenPGP
       msg
     end
 
-    def initialize(*packets)
+    def self.write(&block)
+      self.new(&block).to_s
+    end
+
+    def initialize(*packets, &block)
       @packets = packets.flatten
+      block.call(self) if block_given?
     end
 
     def each(&block) # :yields: packet

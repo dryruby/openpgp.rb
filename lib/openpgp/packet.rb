@@ -183,10 +183,25 @@ module OpenPGP
       def self.parse_body(body, options = {})
         case version = body.read_byte
           when 4
-            self.new(:version => version, :algorithm => body.read_byte, :s2k => body.read_s2k)
+            self.new({:version => version, :algorithm => body.read_byte, :s2k => body.read_s2k}.merge(options))
           else
             raise "Invalid OpenPGP symmetric-key ESK packet version: #{version}"
         end
+      end
+
+      def initialize(options = {}, &block)
+        defaults = {
+          :version   => 4,
+          :algorithm => Algorithm::Symmetric::AES,
+          :s2k       => {:mode => 0, :algorithm => Algorithm::Digest::SHA1},
+        }
+        super(defaults.merge(options), &block)
+      end
+
+      def write_body(buffer)
+        buffer.write_byte(version)
+        buffer.write_byte(algorithm)
+        buffer.write_s2k(s2k)
       end
     end
 
@@ -303,10 +318,18 @@ module OpenPGP
     #
     # @see http://tools.ietf.org/html/rfc4880#section-5.7
     class EncryptedData < Packet
-      attr_accessor :plaintext
+      attr_accessor :data
 
       def self.parse_body(body, options = {})
-        self.new # TODO
+        self.new({:data => body.read}.merge(options))
+      end
+
+      def initialize(options = {}, &block)
+        super(options, &block)
+      end
+
+      def write_body(buffer)
+        buffer.write(data)
       end
     end
 

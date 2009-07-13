@@ -4,6 +4,9 @@ module OpenPGP
   ##
   # OpenPGP digest algorithm.
   module Digest
+    def self.const_missing(name)
+      self.for(name.to_sym)
+    end
 
     def self.for(algorithm)
       case algorithm

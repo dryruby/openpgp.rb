@@ -44,7 +44,7 @@ module OpenPGP
     # OpenPGP hash algorithms.
     #
     # @see http://tools.ietf.org/html/rfc4880#section-9.4
-    module Hash
+    module Digest
       MD5         = 1
       SHA1        = 2
       RIPEMD160   = 3
