@@ -85,7 +85,10 @@ module OpenPGP module Client
     ##
     # Encrypts with a symmetric cipher using a passphrase.
     def symmetric(file)
-      raise NotImplementedError # TODO
+      print OpenPGP.encrypt(File.read(file), {
+        :symmetric  => true,
+        :passphrase => options[:passphrase] || read_passphrase,
+      })
     end
 
     ##
@@ -433,6 +436,10 @@ module OpenPGP module Client
     end
 
     protected
+
+      def read_passphrase
+        # TODO
+      end
 
       def public_keyrings
         {public_keyring_file => keyring(public_keyring_file)} # FIXME
