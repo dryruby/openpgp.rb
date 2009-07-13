@@ -135,7 +135,25 @@ module OpenPGP module Client
     ##
     # Lists keys from the public keyrings.
     def list_public_keys(*keys)
-      raise NotImplementedError # TODO
+      public_keyrings.each do |keyring_filename, keyring|
+        puts (keyring_filename = File.expand_path(keyring_filename))
+        puts '-' * keyring_filename.size
+
+        keyid, keycount = nil, 0
+        keyring.each do |packet|
+          case packet
+            when Packet::PublicSubkey
+              puts "sub   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
+            when Packet::PublicKey
+              keyid = packet.key_id
+              puts if (keycount += 1) > 1
+              puts "pub   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
+              puts "      Key fingerprint = #{format_fingerprint(packet.fingerprint)}" if options[:fingerprint]
+            when Packet::UserID
+              puts "uid" + (' ' * 18) + packet.to_s
+          end
+        end
+      end
     end
 
     ##
@@ -371,20 +389,36 @@ module OpenPGP module Client
 
     protected
 
-      def public_keyring
-        # TODO
+      def public_keyrings
+        {public_keyring_file => keyring(public_keyring_file)} # FIXME
+      end
+
+      def secret_keyrings
+        {secret_keyring_file => keyring(secret_keyring_file)} # FIXME
+      end
+
+      def keyring(file)
+        OpenPGP::Message.parse(File.read(File.expand_path(file)))
       end
 
       def public_keyring_file
-        # TODO
-      end
-
-      def secret_keyring
-        # TODO
+        File.join(options[:homedir], 'pubring.gpg')
       end
 
       def secret_keyring_file
-        # TODO
+        File.join(options[:homedir], 'secring.gpg')
+      end
+
+      def trustdb_file
+        File.join(options[:homedir], 'trustdb.gpg')
+      end
+
+      def format_keyspec(key)
+        "____?/#{key.key_id}" # TODO
+      end
+
+      def format_fingerprint(fingerprint)
+        (text = fingerprint.unpack('a4' * (fingerprint.size / 4)).join(' ')).insert(text.size / 2, ' ')
       end
 
       def parse_options_file(file)
