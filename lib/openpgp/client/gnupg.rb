@@ -355,6 +355,8 @@ module OpenPGP module Client
     ##
     # Emits +count+ random bytes of the given quality level.
     def gen_random(level = 0, count = nil)
+      wrong_args "--gen-random 0|1|2 [count]" unless (0..2).include?(level)
+
       require 'openssl'
       count   = count.to_i if count
       endless = count.nil?
@@ -368,8 +370,14 @@ module OpenPGP module Client
     end
 
     ##
-    def gen_prime(mode, bits)
-      raise NotImplementedError # TODO
+    # Generates a prime number.
+    def gen_prime(mode, bits, qbits = nil)
+      case mode.to_i
+        when 1..4
+          raise NotImplementedError # TODO
+        else
+          wrong_args "--gen-prime mode bits [qbits]"
+      end
     end
 
     ##
@@ -499,6 +507,10 @@ module OpenPGP module Client
 
       def digest_algorithms
         [:MD5, :SHA1, :RIPEMD160, :SHA256, :SHA384, :SHA512]
+      end
+
+      def wrong_args(usage)
+        abort "usage: gpg.rb [options] #{usage}"
       end
   end
 
