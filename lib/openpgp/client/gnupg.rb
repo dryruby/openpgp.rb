@@ -137,20 +137,16 @@ module OpenPGP module Client
     def list_public_keys(*keys)
       public_keyrings.each do |keyring_filename, keyring|
         puts (keyring_filename = File.expand_path(keyring_filename))
-        puts '-' * keyring_filename.size
+        print '-' * keyring_filename.size
 
-        keyid, keycount = nil, 0
         keyring.each do |packet|
           case packet
             when Packet::PublicSubkey
-              puts "sub   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
+              print_key_listing(packet, :sub)
             when Packet::PublicKey
-              keyid = packet.key_id
-              puts if (keycount += 1) > 1
-              puts "pub   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
-              puts "      Key fingerprint = #{format_fingerprint(packet.fingerprint)}" if options[:fingerprint]
+              print_key_listing(packet, :pub)
             when Packet::UserID
-              puts "uid" + (' ' * 18) + packet.to_s
+              print_uid_listing(packet)
           end
         end
       end
@@ -159,7 +155,21 @@ module OpenPGP module Client
     ##
     # Lists keys from the secret keyrings.
     def list_secret_keys(*keys)
-      raise NotImplementedError # TODO
+      secret_keyrings.each do |keyring_filename, keyring|
+        puts (keyring_filename = File.expand_path(keyring_filename))
+        print '-' * keyring_filename.size
+
+        keyring.each do |packet|
+          case packet
+            when Packet::SecretSubkey
+              print_key_listing(packet, :ssb)
+            when Packet::SecretKey
+              print_key_listing(packet, :sec)
+            when Packet::UserID
+              print_uid_listing(packet)
+          end
+        end
+      end
     end
 
     ##
@@ -411,6 +421,16 @@ module OpenPGP module Client
 
       def trustdb_file
         File.join(options[:homedir], 'trustdb.gpg')
+      end
+
+      def print_key_listing(packet, type)
+        puts if [:pub, :sec].include?(type)
+        puts "#{type}   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
+        puts "      Key fingerprint = #{format_fingerprint(packet.fingerprint)}" if options[:fingerprint]
+      end
+
+      def print_uid_listing(packet)
+        puts "uid" + (' ' * 18) + packet.to_s
       end
 
       def format_keyspec(key)
