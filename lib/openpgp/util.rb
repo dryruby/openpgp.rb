@@ -1,8 +1,8 @@
 module OpenPGP
   ##
   # Alias for OpenPGP::Armor.encode().
-  def self.enarmor(data, marker = :message, headers = {})
-    Armor.encode(data, marker, headers)
+  def self.enarmor(data, marker = :message, options = {})
+    Armor.encode(data, marker, options)
   end
 
   ##

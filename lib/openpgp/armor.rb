@@ -35,11 +35,15 @@ module OpenPGP
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     # @see http://tools.ietf.org/html/rfc2045
-    def self.encode(data, marker = :message, headers = {})
+    def self.encode(data, marker = :message, options = {})
       Buffer.write do |text|
         text << self.header(marker)     << "\n"
-        headers.each { |key, value| text << "#{key}: #{value}\n" }
-        text << "\n" << encode64(data)
+        text << "Version: #{options[:version]}\n" if options[:version]
+        text << "Comment: #{options[:comment]}\n" if options[:comment]
+        if options[:headers]
+          options[:headers].each { |key, value| text << "#{key}: #{value}\n" }
+        end
+        text << "\n" << encode64(data, options[:line_length])
         text << "="  << encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
         text << self.footer(marker)     << "\n"
       end
@@ -56,7 +60,7 @@ module OpenPGP
           when :begin
             case line
               when /^-----BEGIN PGP ([^-]+)-----$/
-                state = :head if marker.nil? || marker.to_s.upcase == $1
+                state = :head if marker.nil? || marker(marker) == $1
             end
           when :head
             state = :body if line =~ /^\s*$/

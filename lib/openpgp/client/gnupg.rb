@@ -11,6 +11,7 @@ module OpenPGP module Client
     def initialize(options = {})
       @options = {
         :homedir => ENV['GNUPGHOME'] || '~/.gnupg',
+        :version => false,
       }
       @options.merge!(options)
 
@@ -365,13 +366,15 @@ module OpenPGP module Client
     ##
     # Packs an arbitrary input into an OpenPGP ASCII armor.
     def enarmor(file)
-      raise NotImplementedError # TODO
+      text = OpenPGP.enarmor(File.read(file), :armored_file, :comment => 'Use "gpg --dearmor" for unpacking', :line_length => 64)
+      puts text # FIXME
     end
 
     ##
     # Unpacks an arbitrary input from an OpenPGP ASCII armor.
     def dearmor(file)
-      raise NotImplementedError # TODO
+      data = OpenPGP.dearmor(File.read(file))
+      puts data # FIXME
     end
 
     # Commands for key management
