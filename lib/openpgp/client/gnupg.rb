@@ -354,8 +354,17 @@ module OpenPGP module Client
 
     ##
     # Emits +count+ random bytes of the given quality level.
-    def gen_random(level = 0)
-      raise NotImplementedError # TODO
+    def gen_random(level = 0, count = nil)
+      require 'openssl'
+      count   = count.to_i if count
+      endless = count.nil?
+      while endless || count > 0
+        n = !endless && count < 99 ? count : 99
+        p = OpenSSL::Random.random_bytes(n)
+        print options[:armor] ? [p].pack('m').delete("\n") : p
+        count -= n unless endless
+      end
+      puts if options[:armor]
     end
 
     ##
