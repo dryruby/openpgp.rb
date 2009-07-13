@@ -81,7 +81,7 @@ module OpenPGP
 
     ##
     def self.parse_body(body, options = {})
-      raise NotImplementedError, "#{self.name} body parsing not implemented yet"
+      self.new(options)
     end
 
     def initialize(options = {}, &block)
@@ -378,16 +378,16 @@ module OpenPGP
         case body.read
           # User IDs of the form: "name (comment) <email>"
           when /^([^\(]+)\(([^\)]+)\)\s+<([^>]+)>$/
-            self.new(:name => $1, :comment => $2, :email => $3)
+            self.new(:name => $1.strip, :comment => $2.strip, :email => $3.strip)
           # User IDs of the form: "name <email>"
           when /^([^<]+)\s+<([^>]+)>$/
-            self.new(:name => $1, :comment => nil, :email => $2)
+            self.new(:name => $1.strip, :comment => nil, :email => $2.strip)
           # User IDs of the form: "name"
           when /^([^<]+)$/
-            self.new(:name => $1, :comment => nil, :email => nil)
+            self.new(:name => $1.strip, :comment => nil, :email => nil)
           # User IDs of the form: "<email>"
           when /^<([^>]+)>$/
-            self.new(:name => nil, :comment => nil, :email => $1)
+            self.new(:name => nil, :comment => nil, :email => $1.strip)
           else
             self.new(:name => nil, :comment => nil, :email => nil)
         end
