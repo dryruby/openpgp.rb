@@ -13,30 +13,35 @@ module OpenPGP
       SIGNATURE         = 'SIGNATURE'
     end
 
+    def self.marker(marker)
+      marker = Markers.const_get(marker.to_s.upcase.to_sym) if marker.is_a?(Symbol)
+      marker.to_s.upcase
+    end
+
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     def self.header(marker)
-      "-----BEGIN PGP #{marker.to_s.upcase}-----"
+      "-----BEGIN PGP #{marker(marker)}-----"
     end
 
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     def self.footer(marker)
-      "-----END PGP #{marker.to_s.upcase}-----"
+      "-----END PGP #{marker(marker)}-----"
     end
 
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc4880#section-6.2
     # @see http://tools.ietf.org/html/rfc2045
-    def self.encode(data, marker = :MESSAGE, headers = {})
-      text = Buffer.new
-      text << self.header(marker)     << "\n"
-      headers.each { |key, value| text << "#{key}: #{value}\n" }
-      text << "\n" << Base64.encode64(data)
-      text << "="  << Base64.encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
-      text << self.footer(marker)     << "\n"
-      text.string
+    def self.encode(data, marker = :message, headers = {})
+      Buffer.write do |text|
+        text << self.header(marker)     << "\n"
+        headers.each { |key, value| text << "#{key}: #{value}\n" }
+        text << "\n" << Base64.encode64(data)
+        text << "="  << Base64.encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
+        text << self.footer(marker)     << "\n"
+      end
     end
 
     ##

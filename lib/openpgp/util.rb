@@ -3,7 +3,7 @@ require 'base64'
 module OpenPGP
   ##
   # Alias for OpenPGP::Armor.encode().
-  def self.enarmor(data, marker = :MESSAGE, headers = {})
+  def self.enarmor(data, marker = :message, headers = {})
     Armor.encode(data, marker, headers)
   end
 
