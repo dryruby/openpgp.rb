@@ -94,7 +94,14 @@ module OpenPGP module Client
     ##
     # Stores only (make a simple RFC1991 literal data packet).
     def store(file)
-      raise NotImplementedError # TODO
+      Message.write(stdout) do |msg|
+        msg << Packet::LiteralData.new({
+          :format    => :b,
+          :filename  => File.basename(file),
+          :timestamp => File.mtime(file),
+          :data      => File.read(file),
+        })
+      end
     end
 
     ##
@@ -436,6 +443,10 @@ module OpenPGP module Client
     end
 
     protected
+
+      def stdin()  $stdin  end
+      def stdout() $stdout end
+      def stderr() $stdout end
 
       def read_passphrase
         # TODO

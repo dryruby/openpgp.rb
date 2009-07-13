@@ -61,8 +61,9 @@ module OpenPGP
       msg
     end
 
-    def self.write(&block)
-      self.new(&block).to_s
+    def self.write(io = nil, &block)
+      data = self.new(&block).to_s
+      io.respond_to?(:write) ? io.write(data) : data
     end
 
     def initialize(*packets, &block)
