@@ -30,7 +30,7 @@ module OpenPGP module Client
       puts "Supported algorithms:"
       puts "Pubkey: " # TODO
       puts "Cipher: " # TODO
-      puts "Hash: " # TODO
+      puts "Hash: #{digest_algorithms.join(', ')}"
       puts "Compression: " # TODO
     end
 
@@ -327,13 +327,28 @@ module OpenPGP module Client
     ##
     # Prints message digest of algorithm +algo+ for all given files or stdin.
     def print_md(algo, *files)
-      raise NotImplementedError # TODO
+      unless digest_algorithms.include?(algorithm = algo.to_s.upcase.to_sym)
+        abort "gpg: invalid hash algorithm `#{algo}'"
+      else
+        digest = Digest.for(algorithm)
+      end
+
+      files.each do |file|
+        puts (prefix = "#{file}: ") << format_fingerprint(digest.file(file).hexdigest, prefix.size)
+      end
     end
 
     ##
     # Prints message digests of all available algorithms for all given files or stdin.
     def print_mds(*files)
-      print_md('*', *files)
+      files.each do |file|
+        digest_algorithms.each do |algorithm|
+          algorithm = :RMD160 if algorithm == :RIPEMD160
+          digest    = Digest.for(algorithm)
+
+          puts (prefix = "#{file}: #{algorithm.to_s.rjust(6)} = ") << format_fingerprint(digest.file(file).hexdigest, prefix.size)
+        end
+      end
     end
 
     ##
@@ -439,12 +454,39 @@ module OpenPGP module Client
         "____?/#{key.key_id}" # TODO
       end
 
-      def format_fingerprint(fingerprint)
-        (text = fingerprint.unpack('a4' * (fingerprint.size / 4)).join(' ')).insert(text.size / 2, ' ')
+      def format_fingerprint(input, column = 0)
+        group_size = case input.size
+          when 32 then 2 # MD5
+          when 40 then 4 # SHA1, RIPEMD160
+                  else 8 # SHA2*
+        end
+
+        lines, line, pos = [], '', 0
+        input.upcase!
+        input.each_byte do |c|
+          line << c
+          if (pos += 1) % group_size == 0
+            if (line.size + column) >= (80 - group_size)
+              lines << line
+              line, pos = '', 0
+            else
+              line << ' '
+            end
+          end
+        end
+        lines << line.strip unless line.empty?
+
+        output = lines.join($/ + (' ' * column))
+        output = output.insert(output.size / 2, ' ') if group_size < 8
+        return output
       end
 
       def parse_options_file(file)
         # TODO
+      end
+
+      def digest_algorithms
+        [:MD5, :SHA1, :RIPEMD160, :SHA256, :SHA384, :SHA512]
       end
   end
 
