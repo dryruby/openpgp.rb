@@ -11,6 +11,7 @@ module OpenPGP
       PUBLIC_KEY_BLOCK  = 'PUBLIC KEY BLOCK'
       PRIVATE_KEY_BLOCK = 'PRIVATE KEY BLOCK'
       SIGNATURE         = 'SIGNATURE'
+      ARMORED_FILE      = 'ARMORED FILE' # a GnuPG extension
     end
 
     def self.marker(marker)
@@ -38,8 +39,8 @@ module OpenPGP
       Buffer.write do |text|
         text << self.header(marker)     << "\n"
         headers.each { |key, value| text << "#{key}: #{value}\n" }
-        text << "\n" << Base64.encode64(data)
-        text << "="  << Base64.encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
+        text << "\n" << encode64(data)
+        text << "="  << encode64([OpenPGP.crc24(data)].pack('N')[1, 3])
         text << self.footer(marker)     << "\n"
       end
     end
@@ -62,12 +63,12 @@ module OpenPGP
           when :body
             case line
               when /^=(....)$/
-                crc = ("\0" << Base64.decode64($1)).unpack('N').first
+                crc = ("\0" << decode64($1)).unpack('N').first
                 state = :end
               when /^-----END PGP ([^-]+)-----$/
                 state = :end
               else
-                data << Base64.decode64(line)
+                data << decode64(line)
             end
           when :end
             break
@@ -75,6 +76,32 @@ module OpenPGP
       end
       data.string
     end
+
+    protected
+
+      ##
+      # Returns the Base64-encoded version of +input+, with a configurable
+      # output line length.
+      def self.encode64(input, line_length = nil)
+        if line_length.nil?
+          [input].pack('m')
+        elsif line_length % 4 == 0
+          [input].pack("m#{(line_length / 4) * 3}")
+        else
+          output = []
+          [input].pack('m').delete("\n").scan(/.{1,#{line_length}}/) do
+            output << $&
+          end
+          output << ''
+          output.join("\n")
+        end
+      end
+
+      ##
+      # Returns the Base64-decoded version of +input+.
+      def self.decode64(input)
+        input.unpack('m').first
+      end
   end
 
   include Armor::Markers
