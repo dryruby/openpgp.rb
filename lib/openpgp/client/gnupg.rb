@@ -424,9 +424,11 @@ module OpenPGP module Client
       end
 
       def print_key_listing(packet, type)
-        puts if [:pub, :sec].include?(type)
+        puts unless (is_sub_key = [:sub, :ssb].include?(type))
         puts "#{type}   #{format_keyspec(packet)} #{Time.at(packet.timestamp).strftime('%Y-%m-%d')}"
-        puts "      Key fingerprint = #{format_fingerprint(packet.fingerprint)}" if options[:fingerprint]
+        if options[:fingerprint] && !is_sub_key
+          puts "      Key fingerprint = #{format_fingerprint(packet.fingerprint)}"
+        end
       end
 
       def print_uid_listing(packet)
