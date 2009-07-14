@@ -2,8 +2,36 @@ require 'openssl'
 
 module OpenPGP
   ##
-  # OpenPGP cipher.
+  # OpenPGP cipher algorithm.
   class Cipher
+    autoload :IDEA,      'openpgp/cipher/idea'
+    autoload :TripleDES, 'openpgp/cipher/3des'
+    autoload :CAST5,     'openpgp/cipher/cast5'
+    autoload :Blowfish,  'openpgp/cipher/blowfish'
+    autoload :AES128,    'openpgp/cipher/aes'
+    autoload :AES192,    'openpgp/cipher/aes'
+    autoload :AES256,    'openpgp/cipher/aes'
+    autoload :Twofish,   'openpgp/cipher/twofish'
+
+    DEFAULT = AES128
+
+    ##
+    # @see http://tools.ietf.org/html/rfc4880#section-9.2
+    def self.for(identifier)
+      case identifier
+        when Symbol then const_get(identifier.to_s.upcase)
+        when String then const_get(identifier.upcase.to_sym)
+        when 1      then IDEA
+        when 2      then TripleDES
+        when 3      then CAST5
+        when 4      then Blowfish
+        when 7      then AES128
+        when 8      then AES192
+        when 9      then AES256
+        when 10     then Twofish
+      end
+    end
+
     attr_accessor :key, :options
     attr_accessor :engine
 
@@ -34,7 +62,8 @@ module OpenPGP
     end
 
     def engine
-      @engine ||= self.class.const_get(:ENGINE).new('ECB')
+      require 'openssl' unless defined?(::OpenSSL)
+      @engine ||= OpenSSL::Cipher.new(self.class.const_get(:ENGINE))
     end
 
     ##
@@ -83,62 +112,5 @@ module OpenPGP
       engine.iv  = (@iv ||= "\0" * engine.iv_len)
       engine.update(block) << engine.final
     end
-
-    ##
-    class IDEA < Cipher
-      IDENTIFIER = 1
-      ENGINE     = OpenSSL::Cipher::IDEA rescue nil
-    end
-
-    ##
-    class TripleDES < Cipher
-      IDENTIFIER = 2
-      ENGINE     = Class.new(OpenSSL::Cipher) do
-        define_method(:initialize) { |*args| super('DES-EDE3') }
-      end
-    end
-
-    ##
-    class CAST5 < Cipher
-      IDENTIFIER = 3
-      ENGINE     = OpenSSL::Cipher::CAST5 rescue nil
-    end
-
-    ##
-    class Blowfish < Cipher
-      IDENTIFIER = 4
-      ENGINE     = OpenSSL::Cipher::BF rescue nil
-    end
-
-    ##
-    class AES < Cipher
-      ENGINE     = OpenSSL::Cipher::AES128 rescue nil
-    end
-
-    ##
-    class AES128 < AES
-      IDENTIFIER = 7
-      ENGINE     = OpenSSL::Cipher::AES128 rescue nil
-    end
-
-    ##
-    class AES192 < AES
-      IDENTIFIER = 8
-      ENGINE     = OpenSSL::Cipher::AES192 rescue nil
-    end
-
-    ##
-    class AES256 < AES
-      IDENTIFIER = 9
-      ENGINE     = OpenSSL::Cipher::AES256 rescue nil
-    end
-
-    ##
-    class Twofish < Cipher
-      IDENTIFIER = 10
-      ENGINE     = nil # TODO: use the 'crypt' gem?
-    end
-
-    DEFAULT = AES128
   end
 end
