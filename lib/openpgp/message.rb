@@ -14,8 +14,8 @@ module OpenPGP
     # Creates an encrypted OpenPGP message.
     def self.encrypt(data, options = {}, &block)
       if options[:symmetric]
-        key    = (options[:key]    || S2K::Salted.new(options[:passphrase]))
-        cipher = (options[:cipher] || Cipher::AES128).new(key)
+        key    = (options[:key]    || S2K::DEFAULT.new(options[:passphrase]))
+        cipher = (options[:cipher] || Cipher::DEFAULT).new(key)
 
         msg    = self.new do |msg|
           msg << Packet::SymmetricSessionKey.new(:algorithm => cipher.identifier, :s2k => key)

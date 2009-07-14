@@ -375,7 +375,7 @@ module OpenPGP module Client
       endless = count.nil?
       while endless || count > 0
         n = !endless && count < 99 ? count : 99
-        p = OpenSSL::Random.random_bytes(n)
+        p = Random.random_bytes(n)
         print options[:armor] ? [p].pack('m').delete("\n") : p
         count -= n unless endless
       end
@@ -558,7 +558,7 @@ module OpenPGP module Client
           :AES      => Cipher::AES128,
           :AES192   => Cipher::AES192,
           :AES256   => Cipher::AES256,
-          :TWOFISH  => Cipher::Twofish,
+          #:TWOFISH  => Cipher::Twofish, # N/A
         }
       end
 

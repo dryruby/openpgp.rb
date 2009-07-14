@@ -192,15 +192,15 @@ module OpenPGP
       def initialize(options = {}, &block)
         defaults = {
           :version   => 4,
-          :algorithm => Algorithm::Symmetric::AES,
-          :s2k       => S2K::Simple.new,
+          :algorithm => Cipher::DEFAULT.to_i,
+          :s2k       => S2K::DEFAULT.new,
         }
         super(defaults.merge(options), &block)
       end
 
       def write_body(buffer)
         buffer.write_byte(version)
-        buffer.write_byte(algorithm)
+        buffer.write_byte(algorithm.to_i)
         buffer.write_s2k(s2k)
       end
     end
@@ -258,10 +258,8 @@ module OpenPGP
       def fingerprint
         @fingerprint ||= case version
           when 2, 3
-            require 'digest/md5'
             Digest::MD5.hexdigest([key[:n], key[:e]].join).upcase
           when 4
-            require 'digest/sha1'
             material = [0x99.chr, [size].pack('n'), version.chr, [timestamp].pack('N'), algorithm.chr]
             key_fields.each do |key_field|
               material << [OpenPGP.bitlength(key[key_field])].pack('n')

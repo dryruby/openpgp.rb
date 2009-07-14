@@ -138,5 +138,7 @@ module OpenPGP
       IDENTIFIER = 10
       ENGINE     = nil # TODO: use the 'crypt' gem?
     end
+
+    DEFAULT = AES128
   end
 end

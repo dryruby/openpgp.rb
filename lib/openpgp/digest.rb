@@ -12,6 +12,8 @@ module OpenPGP
     autoload :SHA512,    'openpgp/digest/sha2'
     autoload :SHA224,    'openpgp/digest/sha2'
 
+    DEFAULT = SHA1
+
     def self.for(identifier)
       case identifier
         when Symbol then const_get(identifier.to_s.upcase)

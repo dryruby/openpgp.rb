@@ -37,7 +37,7 @@ module OpenPGP
 
     def digest
       @digest ||= case algorithm
-        when nil    then Digest::SHA1
+        when nil    then Digest::DEFAULT
         when Digest then algorithm
         when Symbol then Digest.for(algorithm)
         when String then Digest.for(algorithm)
@@ -88,5 +88,7 @@ module OpenPGP
         super.merge({:count => count}) # FIXME
       end
     end
+
+    DEFAULT = Salted
   end
 end
