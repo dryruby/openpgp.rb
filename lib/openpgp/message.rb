@@ -14,11 +14,11 @@ module OpenPGP
     # Creates an encrypted OpenPGP message.
     def self.encrypt(data, options = {}, &block)
       if options[:symmetric]
-        key    = (options[:key]    || Digest::SHA1.digest(options[:passphrase]))
+        key    = (options[:key]    || S2K::Salted.new(options[:passphrase]))
         cipher = (options[:cipher] || Cipher::AES128).new(key)
 
         msg    = self.new do |msg|
-          msg << Packet::SymmetricSessionKey.new(:algorithm => cipher.identifier)
+          msg << Packet::SymmetricSessionKey.new(:algorithm => cipher.identifier, :s2k => key)
           msg << Packet::EncryptedData.new do |packet|
             plaintext = self.write do |msg|
               case data

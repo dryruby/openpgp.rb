@@ -26,6 +26,8 @@ module OpenPGP
       end
     end
 
+    def self.to_i() identifier end
+
     def self.identifier
       const_get(:IDENTIFIER)
     end

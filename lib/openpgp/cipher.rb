@@ -8,11 +8,21 @@ module OpenPGP
     attr_accessor :engine
 
     def initialize(key, options = {})
-      @key, @options = key, options
+      @key = case key
+        when S2K then key.to_key(key_size)
+        else S2K::Simple.new(key).to_key(key_size)
+      end
+      @options = options
     end
 
-    def identifier
-      self.class.const_get(:IDENTIFIER)
+    def self.to_i() identifier end
+
+    def self.identifier
+      const_get(:IDENTIFIER)
+    end
+
+    def identifier()
+      self.class.identifier
     end
 
     def key_size
@@ -36,7 +46,7 @@ module OpenPGP
       engine.encrypt
 
       # IV
-      rblock = OpenSSL::Random.random_bytes(block_size)
+      rblock = Random.random_bytes(block_size)
       iblock = encrypt_block("\0" * block_size)
       block_size.times do |i|
         ciphertext << (iblock[i] ^= rblock[i]).chr

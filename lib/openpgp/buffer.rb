@@ -83,9 +83,10 @@ module OpenPGP
     end
 
     def write_s2k(s2k)
+      s2k = s2k.to_hash
       write_byte(s2k[:mode])
       write_byte(s2k[:algorithm]) if s2k.has_key?(:algorithm)
-      write_bytes(s2k[:salt])     if s2k.has_key?(:salt) # FIXME
+      write_bytes(s2k[:salt])     if s2k.has_key?(:salt)
       write_byte(s2k[:count])     if s2k.has_key?(:count) # FIXME
       write_bytes(s2k[:data])     if s2k.has_key?(:data)
     end
