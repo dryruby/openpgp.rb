@@ -43,18 +43,21 @@ module OpenPGP
     end
 
     def self.size
-      require 'openssl' unless defined?(::OpenSSL)
-      OpenSSL::Digest.new(algorithm.to_s).digest_length
+      Engine::OpenSSL.use do
+        OpenSSL::Digest.new(algorithm.to_s).digest_length
+      end
     end
 
     def self.hexdigest(data)
-      require 'openssl' unless defined?(::OpenSSL)
-      OpenSSL::Digest.hexdigest(algorithm.to_s, data).upcase
+      Engine::OpenSSL.use do
+        OpenSSL::Digest.hexdigest(algorithm.to_s, data).upcase
+      end
     end
 
     def self.digest(data)
-      require 'openssl' unless defined?(::OpenSSL)
-      OpenSSL::Digest.digest(algorithm.to_s, data)
+      Engine::OpenSSL.use do
+        OpenSSL::Digest.digest(algorithm.to_s, data)
+      end
     end
   end
 end

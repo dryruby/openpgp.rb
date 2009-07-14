@@ -62,8 +62,9 @@ module OpenPGP
     end
 
     def engine
-      require 'openssl' unless defined?(::OpenSSL)
-      @engine ||= OpenSSL::Cipher.new(self.class.const_get(:ENGINE))
+      @engine ||= Engine::OpenSSL.use do
+        OpenSSL::Cipher.new(self.class.const_get(:ENGINE))
+      end
     end
 
     ##

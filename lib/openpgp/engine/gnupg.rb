@@ -1,10 +1,14 @@
-module OpenPGP
+module OpenPGP class Engine
   ##
   # GNU Privacy Guard (GnuPG) wrapper.
   #
   # @see http://www.gnupg.org/
-  class GnuPG
+  class GnuPG < Engine
     class Error < IOError; end
+
+    def self.available?
+      self.new.available?
+    end
 
     OPTIONS = {
       :batch                 => true,
@@ -166,4 +170,4 @@ module OpenPGP
         "--" << option.to_s.gsub('_', '-')
       end
   end
-end
+end end
