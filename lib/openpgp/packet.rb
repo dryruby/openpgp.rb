@@ -193,7 +193,7 @@ module OpenPGP
         defaults = {
           :version   => 4,
           :algorithm => Algorithm::Symmetric::AES,
-          :s2k       => {:mode => 0, :algorithm => Algorithm::Digest::SHA1},
+          :s2k       => {:mode => 0, :algorithm => Digest::SHA1.identifier},
         }
         super(defaults.merge(options), &block)
       end

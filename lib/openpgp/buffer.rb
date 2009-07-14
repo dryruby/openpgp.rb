@@ -113,15 +113,5 @@ module OpenPGP
     def write_byte(value)
       self << (value.respond_to?(:chr) ? value : value.to_s[0]).chr
     end
-
-    def sha1
-      require 'digest/sha1'
-      Digest::SHA1.hexdigest(string).upcase
-    end
-
-    def md5
-      require 'digest/md5'
-      Digest::MD5.hexdigest(string).upcase
-    end
   end
 end
