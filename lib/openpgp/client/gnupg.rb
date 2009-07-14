@@ -30,9 +30,9 @@ module OpenPGP module Client
       puts "Home: #{options[:homedir]}"
       puts "Supported algorithms:"
       puts "Pubkey: " # TODO
-      puts "Cipher: " # TODO
+      puts "Cipher: #{cipher_algorithms.keys.map(&:to_s).sort.join(', ')}"
       puts "Hash: #{digest_algorithms.join(', ')}"
-      puts "Compression: " # TODO
+      puts "Compression: #{compress_algorithms.keys.map(&:to_s).sort.join(', ')}"
     end
 
     ##
@@ -87,7 +87,10 @@ module OpenPGP module Client
     def symmetric(file)
       print OpenPGP.encrypt(File.read(file), {
         :symmetric  => true,
-        :passphrase => options[:passphrase] || read_passphrase,
+        :passphrase => read_passphrase,
+        :cipher     => cipher_algorithm,
+        :digest     => digest_algorithm,
+        :compress   => compress_algorithm,
       })
     end
 
@@ -449,7 +452,11 @@ module OpenPGP module Client
       def stderr() $stdout end
 
       def read_passphrase
-        # TODO
+        if options[:passphrase]
+          options[:passphrase]
+        else
+          # TODO
+        end
       end
 
       def public_keyrings
@@ -523,8 +530,49 @@ module OpenPGP module Client
         # TODO
       end
 
+      def cipher_algorithm
+        unless options[:cipher_algo]
+          Cipher::CAST5 # this is the default cipher
+        else
+          algorithm = options[:cipher_algo].to_s.upcase.to_sym
+          unless cipher_algorithms.has_key?(algorithm)
+            abort "gpg: selected cipher algorithm is invalid"
+          end
+          cipher_algorithms[algorithm]
+        end
+      end
+
+      def digest_algorithm
+        options[:digest_algo]
+      end
+
+      def compress_algorithm
+        options[:compress_algo]
+      end
+
+      def cipher_algorithms
+        {
+          :"3DES"   => Cipher::TripleDES,
+          :CAST5    => Cipher::CAST5,
+          :BLOWFISH => Cipher::Blowfish,
+          :AES      => Cipher::AES128,
+          :AES192   => Cipher::AES192,
+          :AES256   => Cipher::AES256,
+          :TWOFISH  => Cipher::Twofish,
+        }
+      end
+
       def digest_algorithms
         [:MD5, :SHA1, :RIPEMD160, :SHA256, :SHA384, :SHA512]
+      end
+
+      def compress_algorithms
+        {
+          :none     => nil,
+          :ZIP      => nil, # TODO
+          :ZLIB     => nil, # TODO
+          :BZIP2    => nil, # TODO
+        }
       end
 
       def wrong_args(usage)
