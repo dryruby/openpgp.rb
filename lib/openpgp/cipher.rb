@@ -76,26 +76,28 @@ module OpenPGP
 
     ##
     class IDEA < Cipher
-      ENGINE     = OpenSSL::Cipher::IDEA rescue nil
       IDENTIFIER = 1
+      ENGINE     = OpenSSL::Cipher::IDEA rescue nil
     end
 
     ##
     class TripleDES < Cipher
-      ENGINE     = OpenSSL::Cipher::DES rescue nil
       IDENTIFIER = 2
+      ENGINE     = Class.new(OpenSSL::Cipher) do
+        define_method(:initialize) { |*args| super('DES-EDE3') }
+      end
     end
 
     ##
     class CAST5 < Cipher
-      ENGINE     = OpenSSL::Cipher::CAST5 rescue nil
       IDENTIFIER = 3
+      ENGINE     = OpenSSL::Cipher::CAST5 rescue nil
     end
 
     ##
     class Blowfish < Cipher
-      ENGINE     = OpenSSL::Cipher::BF rescue nil
       IDENTIFIER = 4
+      ENGINE     = OpenSSL::Cipher::BF rescue nil
     end
 
     ##
@@ -105,26 +107,26 @@ module OpenPGP
 
     ##
     class AES128 < AES
-      ENGINE     = OpenSSL::Cipher::AES128 rescue nil
       IDENTIFIER = 7
+      ENGINE     = OpenSSL::Cipher::AES128 rescue nil
     end
 
     ##
     class AES192 < AES
-      ENGINE     = OpenSSL::Cipher::AES192 rescue nil
       IDENTIFIER = 8
+      ENGINE     = OpenSSL::Cipher::AES192 rescue nil
     end
 
     ##
     class AES256 < AES
-      ENGINE     = OpenSSL::Cipher::AES256 rescue nil
       IDENTIFIER = 9
+      ENGINE     = OpenSSL::Cipher::AES256 rescue nil
     end
 
     ##
     class Twofish < Cipher
-      ENGINE     = nil # TODO: use the 'crypt' gem?
       IDENTIFIER = 10
+      ENGINE     = nil # TODO: use the 'crypt' gem?
     end
   end
 end
