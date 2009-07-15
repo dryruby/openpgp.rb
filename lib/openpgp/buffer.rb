@@ -69,27 +69,9 @@ module OpenPGP
 
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-3.7
-    def read_s2k
-      case mode = read_byte
-        when 0        # Simple S2K
-          {:mode => mode, :algorithm => read_byte}
-        when 1        # Salted S2K
-          {:mode => mode, :algorithm => read_byte, :salt => read_bytes(8)}
-        when 3        # Iterated and Salted S2K
-          {:mode => mode, :algorithm => read_byte, :salt => read_bytes(8), :count => read_byte} # FIXME
-        when 100..110 # Private/Experimental S2K
-          {:mode => mode, :data => read}
-      end
-    end
+    def read_s2k()     S2K.parse(self) end
 
-    def write_s2k(s2k)
-      s2k = s2k.to_hash
-      write_byte(s2k[:mode])
-      write_byte(s2k[:algorithm]) if s2k.has_key?(:algorithm)
-      write_bytes(s2k[:salt])     if s2k.has_key?(:salt)
-      write_byte(s2k[:count])     if s2k.has_key?(:count) # FIXME
-      write_bytes(s2k[:data])     if s2k.has_key?(:data)
-    end
+    def write_s2k(s2k) s2k.write(self) end
 
     def read_unpacked(count, format)
       read_bytes(count).unpack(format).first
