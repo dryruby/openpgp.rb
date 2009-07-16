@@ -43,21 +43,15 @@ module OpenPGP
     end
 
     def self.size
-      Engine::OpenSSL.use do
-        OpenSSL::Digest.new(algorithm.to_s).digest_length
-      end
+      raise NotImplementedError # @see Engine::OpenSSL::Digest
     end
 
     def self.hexdigest(data)
-      Engine::OpenSSL.use do
-        OpenSSL::Digest.hexdigest(algorithm.to_s, data).upcase
-      end
+      raise NotImplementedError # @see Engine::OpenSSL::Digest
     end
 
     def self.digest(data)
-      Engine::OpenSSL.use do
-        OpenSSL::Digest.digest(algorithm.to_s, data)
-      end
+      raise NotImplementedError # @see Engine::OpenSSL::Digest
     end
   end
 end

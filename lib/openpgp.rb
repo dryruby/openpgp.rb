@@ -13,3 +13,5 @@ module OpenPGP
   autoload :Random,    'openpgp/random'
   autoload :S2K,       'openpgp/s2k'
 end
+
+OpenPGP::Engine::OpenSSL.install!
