@@ -104,7 +104,7 @@ module OpenPGP
       def initialize(passphrase = nil, options = {}, &block)
         super(passphrase, options, &block)
 
-        @salt = Random.random_bytes(8) unless @salt
+        @salt = Random.bytes(8) unless @salt
       end
 
       def write(buffer)

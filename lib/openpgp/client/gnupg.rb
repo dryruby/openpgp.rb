@@ -375,7 +375,7 @@ module OpenPGP module Client
       endless = count.nil?
       while endless || count > 0
         n = !endless && count < 99 ? count : 99
-        p = Random.random_bytes(n)
+        p = Random.bytes(n)
         print options[:armor] ? [p].pack('m').delete("\n") : p
         count -= n unless endless
       end

@@ -76,7 +76,7 @@ module OpenPGP
       engine.encrypt
 
       # IV
-      rblock = Random.random_bytes(block_size)
+      rblock = Random.bytes(block_size)
       iblock = encrypt_block("\0" * block_size)
       block_size.times do |i|
         ciphertext << (iblock[i] ^= rblock[i]).chr
