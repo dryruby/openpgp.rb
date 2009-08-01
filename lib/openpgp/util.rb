@@ -7,8 +7,8 @@ module OpenPGP
 
   ##
   # Alias for OpenPGP::Armor.decode().
-  def self.dearmor(text, marker = nil)
-    Armor.decode(text, marker)
+  def self.dearmor(text, marker = nil, options = {})
+    Armor.decode(text, marker, options)
   end
 
   ##

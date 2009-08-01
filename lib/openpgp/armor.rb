@@ -52,8 +52,9 @@ module OpenPGP
     ##
     # @see http://tools.ietf.org/html/rfc4880#section-6
     # @see http://tools.ietf.org/html/rfc2045
-    def self.decode(text, marker = nil)
+    def self.decode(text, marker = nil, options = {})
       data, crc, state = Buffer.new, nil, :begin
+
       text.each_line do |line|
         line.chomp!
         case state
@@ -78,8 +79,15 @@ module OpenPGP
             break
         end
       end
-      data.string
+
+      data = data.string
+      if options[:crc] && crc != (crc_data = OpenPGP.crc24(data))
+        raise CRCError.new("ASCII armor says 0x#{crc.to_s(16)}, but data has 0x#{crc_data.to_s(16)}")
+      end
+      data
     end
+
+    class CRCError < IOError; end
 
     protected
 
