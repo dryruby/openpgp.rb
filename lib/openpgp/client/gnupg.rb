@@ -4,7 +4,7 @@ module OpenPGP module Client
   #
   # @see http://www.gnupg.org/
   class GnuPG
-    VERSION = OpenPGP::Version::STRING
+    VERSION = OpenPGP::VERSION
 
     attr_accessor :options
 
