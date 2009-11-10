@@ -41,7 +41,7 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
 
 === Generating a new keypair
 
-  gpg = OpenPGP::GnuPG.new(:homedir => '~/.gnupg')
+  gpg = OpenPGP::Engine::GnuPG.new(:homedir => '~/.gnupg')
   key_id = gpg.gen_key({
     :key_type      => 'DSA',
     :key_length    => 1024,
