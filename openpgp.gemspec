@@ -3,7 +3,7 @@
 
 GEMSPEC = Gem::Specification.new do |gem|
   gem.name               = 'openpgp'
-  gem.version            = '0.0.1.2'
+  gem.version            = '0.0.1.3'
   gem.date               = '2009-04-30'
   gem.homepage           = 'http://github.com/bendiken/openpgp'
   gem.license            = 'MIT' if gem.respond_to?(:license=)
@@ -17,7 +17,7 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.email              = 'arto.bendiken@gmail.com'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(LICENSE README README.rdoc Rakefile VERSION bin/openpgp lib/openpgp.rb lib/openpgp/algorithm.rb lib/openpgp/armor.rb lib/openpgp/gnupg.rb lib/openpgp/message.rb lib/openpgp/packet.rb lib/openpgp/util.rb lib/openpgp/version.rb)
+  gem.files              = %w(LICENSE README README.rdoc Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
   gem.files             -= %w(README.rdoc) # only for GitHub
   gem.bindir             = %q(bin)
   gem.executables        = %w(openpgp)

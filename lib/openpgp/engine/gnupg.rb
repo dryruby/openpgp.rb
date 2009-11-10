@@ -64,10 +64,11 @@ module OpenPGP class Engine
 
     ##
     # Exports a specified key from the GnuPG keyring.
-    def export(key_id = nil)
-      OpenPGP::Message.parse(exec([:export, *[key_id].flatten]).read)
+    def export(key_id = nil, opts = {})
+      OpenPGP::Message.parse(exec([:export, *[key_id].flatten], opts ).read)
     end
 
+    ##
     ##
     # Imports a specified keyfile into the GnuPG keyring.
     def import()
@@ -99,6 +100,12 @@ module OpenPGP class Engine
     end
 
     ##
+    # Makes an OpenPGP signature.
+    def sign_file(key_id, file, passphrase)
+      OpenPGP::Message.parse(exec([:sign, file],{ :local_user => key_id, :passphrase => passphrase}).read)
+    end
+
+    ##
     # Makes a clear text OpenPGP signature.
     def clearsign()
       # TODO
@@ -112,8 +119,8 @@ module OpenPGP class Engine
 
     ##
     # Verifies an OpenPGP signature.
-    def verify()
-      # TODO
+    def verify(key_id, file)
+      OpenPGP::Message.parse(exec([:verify, file],{ :local_user => key_id}).read)
     end
 
     ##
