@@ -2,10 +2,10 @@
 # -*- encoding: utf-8 -*-
 
 GEMSPEC = Gem::Specification.new do |gem|
-  gem.name               = 'openpgp'
+  gem.name               = 'klacointe-openpgp'
   gem.version            = '0.0.1.3'
   gem.date               = '2009-04-30'
-  gem.homepage           = 'http://github.com/bendiken/openpgp'
+  gem.homepage           = 'http://github.com/klacointe/openpgp'
   gem.license            = 'MIT' if gem.respond_to?(:license=)
   gem.summary            = 'A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).'
   gem.description        = <<-EOF
@@ -13,8 +13,8 @@ GEMSPEC = Gem::Specification.new do |gem|
   EOF
   gem.rubyforge_project  = 'openpgp'
 
-  gem.authors            = ['Arto Bendiken']
-  gem.email              = 'arto.bendiken@gmail.com'
+  gem.authors            = ['Arto Bendiken', 'spk', 'Kévin Lacointe']
+  gem.email              = 'kevinlacointe@gmail.com'
 
   gem.platform           = Gem::Platform::RUBY
   gem.files              = %w(LICENSE README README.rdoc Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
