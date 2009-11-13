@@ -76,11 +76,16 @@ module OpenPGP class Engine
     end
 
     def delete_secret_and_public_key(key_id)
-      # TODO
+      opts = {:batch => true}
+      OpenPGP::Message.parse(exec([:delete_secret_and_public_key, key_fingerprint(key_id)], opts ).read)
     end
 
-    def key_fingerprint(key_id)
-      # TODO
+    def key_fingerprint(key_id, opts = {})
+      message = exec([:fingerprint, *[key_id].flatten], opts ).read
+      if message =~ /Key fingerprint = (.*)\n/
+        return $1.delete(" ")
+      end
+      nil
     end
 
     ##
