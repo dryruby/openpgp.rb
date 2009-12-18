@@ -6,18 +6,18 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.version            = '0.0.1.3'
   gem.date               = '2009-04-30'
   gem.homepage           = 'http://github.com/bendiken/openpgp'
-  gem.license            = 'MIT' if gem.respond_to?(:license=)
+  gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).'
   gem.description        = <<-EOF
     OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
   EOF
   gem.rubyforge_project  = 'openpgp'
 
-  gem.authors            = ['Arto Bendiken']
+  gem.authors            = ['Arto Bendiken', 'Kévin Lacointe']
   gem.email              = 'arto.bendiken@gmail.com'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(LICENSE README README.rdoc Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
+  gem.files              = %w(UNLICENSE AUTHORS README README.rdoc Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
   gem.files             -= %w(README.rdoc) # only for GitHub
   gem.bindir             = %q(bin)
   gem.executables        = %w(openpgp)

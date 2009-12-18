@@ -100,5 +100,5 @@ directly from GitHub as follows:
 
 == License
 
-All source code is available under the terms of the MIT license. For more
-information, see the accompanying LICENSE file.
+OpenPGP.rb is free and unencumbered public domain software. For more
+information, see http://unlicense.org or the accompanying UNLICENSE file.
