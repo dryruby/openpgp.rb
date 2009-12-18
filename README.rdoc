@@ -78,11 +78,6 @@ official release from RubyForge, do:
 
   % [sudo] gem install openpgp
 
-To use the very latest bleeding-edge development version, install the gem
-directly from GitHub as follows:
-
-  % [sudo] gem install bendiken-openpgp -s http://gems.github.com
-
 
 == Resources
 
@@ -96,6 +91,7 @@ directly from GitHub as follows:
 == Authors
 
 * Arto Bendiken (mailto:arto.bendiken@gmail.com) - http://ar.to
+* Kévin Lacointe (kevinlacointe@gmail.com)
 
 
 == License
