@@ -3,13 +3,14 @@
 
 GEMSPEC = Gem::Specification.new do |gem|
   gem.name               = 'openpgp'
-  gem.version            = '0.0.1.3'
-  gem.date               = '2009-04-30'
+  gem.version            = '0.0.2'
+  gem.date               = '2009-12-20'
   gem.homepage           = 'http://github.com/bendiken/openpgp'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).'
   gem.description        = <<-EOF
-    OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
+    OpenPGP.rb is a pure-Ruby implementation of the OpenPGP Message Format
+    (RFC 4880), the most widely-used e-mail encryption standard in the world.
   EOF
   gem.rubyforge_project  = 'openpgp'
 
@@ -17,7 +18,7 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.email              = 'arto.bendiken@gmail.com'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(UNLICENSE AUTHORS README README.md Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
+  gem.files              = %w(AUTHORS README README.md Rakefile UNLICENSE VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
   gem.files             -= %w(README.md) # only for GitHub
   gem.bindir             = %q(bin)
   gem.executables        = %w(openpgp)
@@ -29,6 +30,7 @@ GEMSPEC = Gem::Specification.new do |gem|
 
   gem.required_ruby_version  = '>= 1.8.2'
   gem.requirements           = ['GnuPG >= 1.4.7 (not required, but enables extra functionality)']
+  gem.add_runtime_dependency 'open4'
   gem.add_development_dependency 'bendiken-rakefile' # http://github.com/bendiken/rakefile
   gem.post_install_message   = nil
 end
