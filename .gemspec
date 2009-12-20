@@ -5,7 +5,7 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.name               = 'openpgp'
   gem.version            = '0.0.2'
   gem.date               = '2009-12-20'
-  gem.homepage           = 'http://github.com/bendiken/openpgp'
+  gem.homepage           = 'http://openpgp.rubyforge.org/'
   gem.license            = 'Public Domain' if gem.respond_to?(:license=)
   gem.summary            = 'A pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).'
   gem.description        = <<-EOF

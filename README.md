@@ -81,7 +81,7 @@ Resources
 
 * <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
-* <http://gemcutter.org/gems/crm114>
+* <http://gemcutter.org/gems/openpgp>
 * <http://rubyforge.org/projects/openpgp>
 * <http://raa.ruby-lang.org/project/openpgp/>
 * <http://www.ohloh.net/p/openpgp>
