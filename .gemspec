@@ -17,8 +17,8 @@ GEMSPEC = Gem::Specification.new do |gem|
   gem.email              = 'arto.bendiken@gmail.com'
 
   gem.platform           = Gem::Platform::RUBY
-  gem.files              = %w(UNLICENSE AUTHORS README README.rdoc Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
-  gem.files             -= %w(README.rdoc) # only for GitHub
+  gem.files              = %w(UNLICENSE AUTHORS README README.md Rakefile VERSION bin/openpgp) + Dir.glob('lib/**/*.rb')
+  gem.files             -= %w(README.md) # only for GitHub
   gem.bindir             = %q(bin)
   gem.executables        = %w(openpgp)
   gem.default_executable = gem.executables.first
