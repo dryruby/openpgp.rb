@@ -1,5 +1,5 @@
-OpenPGP.rb
-==========
+OpenPGP.rb: OpenPGP for Ruby
+============================
 
 This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 
