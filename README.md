@@ -6,7 +6,6 @@ This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 * <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
 
-
 ### About OpenPGP
 
 OpenPGP is the most widely-used e-mail encryption standard in the world. It
@@ -18,19 +17,18 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
 * <http://tools.ietf.org/html/rfc4880>
 * <http://www.openpgp.org/>
 
-
-## Features
+Features
+--------
 
 * Encodes and decodes ASCII-armored OpenPGP messages.
 * Parses OpenPGP messages into their constituent packets.
   * Supports both old-format (PGP 2.6.x) and new-format (RFC 4880) packets.
 * Includes a GnuPG wrapper for features that are not natively supported.
 
-
-## Examples
+Examples
+--------
 
     require 'openpgp'
-
 
 ### Decoding an ASCII-armored message
 
@@ -38,7 +36,6 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
     text = open('http://ar.to/pgp.txt').read
 
     msg = OpenPGP::Message.parse(OpenPGP.dearmor(text))
-
 
 ### Generating a new keypair
 
@@ -54,13 +51,13 @@ derived from PGP (Pretty Good Privacy), first created by Phil Zimmermann in
       :passphrase    => 'secret passphrase',
     })
 
-
-## Documentation
+Documentation
+-------------
 
 * <http://openpgp.rubyforge.org/>
 
-
-## Download
+Download
+--------
 
 To get a local working copy of the development repository, do:
 
@@ -71,16 +68,16 @@ as follows:
 
     % wget http://github.com/bendiken/openpgp/tarball/master
 
-
-## Installation
+Installation
+------------
 
 The recommended installation method is via RubyGems. To install the latest
 official release from Gemcutter, do:
 
     % [sudo] gem install openpgp
 
-
-## Resources
+Resources
+---------
 
 * <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
@@ -88,14 +85,14 @@ official release from Gemcutter, do:
 * <http://raa.ruby-lang.org/project/openpgp/>
 * <http://www.ohloh.net/p/openpgp>
 
-
-## Authors
+Authors
+-------
 
 * [Arto Bendiken](mailto:arto.bendiken@gmail.com) - <http://ar.to/>
 * [Kévin Lacointe](mailto:kevinlacointe@gmail.com)
 
-
-## License
+License
+-------
 
 OpenPGP.rb is free and unencumbered public domain software. For more
 information, see <http://unlicense.org/> or the accompanying UNLICENSE file.
