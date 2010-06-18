@@ -56,6 +56,21 @@ Documentation
 
 * <http://openpgp.rubyforge.org/>
 
+Dependencies
+------------
+
+* [Ruby](http://ruby-lang.org/) (>= 1.8.7) or (>= 1.8.1 with [Backports][])
+* [Open4](http://rubygems.org/gems/open4) (>= 1.0.1)
+
+Installation
+------------
+
+The recommended installation method is via [RubyGems](http://rubygems.org/).
+To install the latest official release of OpenPGP.rb, do:
+
+    % [sudo] gem install openpgp             # Ruby 1.8.7+ or 1.9.x
+    % [sudo] gem install backports openpgp   # Ruby 1.8.1+
+
 Download
 --------
 
@@ -68,20 +83,12 @@ as follows:
 
     % wget http://github.com/bendiken/openpgp/tarball/master
 
-Installation
-------------
-
-The recommended installation method is via RubyGems. To install the latest
-official release from Gemcutter, do:
-
-    % [sudo] gem install openpgp
-
 Resources
 ---------
 
 * <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
-* <http://gemcutter.org/gems/openpgp>
+* <http://rubygems.org/gems/openpgp>
 * <http://rubyforge.org/projects/openpgp>
 * <http://raa.ruby-lang.org/project/openpgp/>
 * <http://www.ohloh.net/p/openpgp>
