@@ -12,20 +12,20 @@ if RUBY_VERSION < '1.8.7'
   end
 end
 
-require 'openpgp/version'
-require 'openpgp/util'
-
 module OpenPGP
+  require 'openpgp/util'
+
   autoload :Algorithm, 'openpgp/algorithm'
   autoload :Armor,     'openpgp/armor'
   autoload :Buffer,    'openpgp/buffer'
   autoload :Cipher,    'openpgp/cipher'
-  autoload :Engine,    'openpgp/engine'
   autoload :Digest,    'openpgp/digest'
+  autoload :Engine,    'openpgp/engine'
   autoload :Message,   'openpgp/message'
   autoload :Packet,    'openpgp/packet'
   autoload :Random,    'openpgp/random'
   autoload :S2K,       'openpgp/s2k'
+  autoload :VERSION,   'openpgp/version'
 end
 
 OpenPGP::Engine::OpenSSL.install!
