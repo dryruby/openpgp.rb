@@ -137,5 +137,13 @@ module OpenPGP
     def write_byte(value)
       self << (value.respond_to?(:chr) ? value : value.to_s[0]).chr
     end
+
+    ##
+    # @return [String]
+    def string
+      string = super
+      string.force_encoding(Encoding::ASCII_8BIT) if string.respond_to?(:force_encoding)
+      string
+    end
   end
 end

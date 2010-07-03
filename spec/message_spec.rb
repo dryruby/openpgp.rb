@@ -1,8 +1,9 @@
-require 'openpgp'
+require File.join(File.dirname(__FILE__), 'spec_helper')
 
 describe OpenPGP::Message, " at <http://ar.to/pgp.txt>" do
   before :each do
     @ascii = File.read(File.join(File.dirname(__FILE__), 'data', 'pgp.txt'))
+    @ascii.force_encoding(Encoding::ASCII) if @ascii.respond_to?(:force_encoding)
   end
 
   context "when dearmored" do
