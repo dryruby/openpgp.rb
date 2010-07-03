@@ -1,4 +1,5 @@
 module OpenPGP
+  ##
   module Algorithm
     ##
     # OpenPGP public-key algorithms.

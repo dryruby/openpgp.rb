@@ -9,12 +9,17 @@ module OpenPGP
 
     ##
     # Returns the implementation class for a packet tag.
+    #
+    # @param  [Integer, #to_i] tag
+    # @return [Class]
     def self.for(tag)
       @@tags[tag.to_i] || self
     end
 
     ##
     # Returns the packet tag for this class.
+    #
+    # @return [Integer]
     def self.tag
       @@tags.index(self)
     end
@@ -22,7 +27,9 @@ module OpenPGP
     ##
     # Parses an OpenPGP packet.
     #
-    # @see http://tools.ietf.org/html/rfc4880#section-4.2
+    # @param  [Buffer, #to_str] data
+    # @return [Packet]
+    # @see    http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
       data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
 
@@ -36,7 +43,9 @@ module OpenPGP
     ##
     # Parses a new-format (RFC 4880) OpenPGP packet.
     #
-    # @see http://tools.ietf.org/html/rfc4880#section-4.2.2
+    # @param  [Buffer, #to_str] data
+    # @return [Packet]
+    # @see    http://tools.ietf.org/html/rfc4880#section-4.2.2
     def self.parse_new_format(data)
       tag = data.getc & 63
       len = data.getc
@@ -58,7 +67,9 @@ module OpenPGP
     ##
     # Parses an old-format (PGP 2.6.x) OpenPGP packet.
     #
-    # @see http://tools.ietf.org/html/rfc4880#section-4.2.1
+    # @param  [Buffer, #to_str] data
+    # @return [Packet]
+    # @see    http://tools.ietf.org/html/rfc4880#section-4.2.1
     def self.parse_old_format(data)
       len = (tag = data.getc) & 3
       tag = (tag >> 2) & 15
@@ -80,10 +91,15 @@ module OpenPGP
     end
 
     ##
+    # @param  [Buffer]                 body
+    # @param  [Hash{Symbol => Object}] options
+    # @return [Packet]
     def self.parse_body(body, options = {})
       self.new(options)
     end
 
+    ##
+    # @param  [Hash{Symbol => Object}] options
     def initialize(options = {}, &block)
       options.each { |k, v| send("#{k}=", v) }
       block.call(self) if block_given?
@@ -91,8 +107,12 @@ module OpenPGP
 
     #def to_s() body end
 
+    ##
+    # @return [Integer]
     def size() body.size end
 
+    ##
+    # @return [String]
     def body
       respond_to?(:write_body) ? Buffer.write { |buffer| write_body(buffer) } : ""
     end

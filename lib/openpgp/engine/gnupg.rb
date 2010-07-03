@@ -6,6 +6,8 @@ module OpenPGP class Engine
   class GnuPG < Engine
     class Error < IOError; end
 
+    ##
+    # @return [Boolean]
     def self.available?
       self.new.available?
     end
@@ -19,9 +21,14 @@ module OpenPGP class Engine
       :no_random_seed_file   => true,
     }
 
+    # @return [String]
     attr_accessor :where
+
+    # @return [Hash{Symbol => Object}]
     attr_accessor :options
 
+    ##
+    # @param  [Hash{Symbol => Object}] options
     def initialize(options = {})
       @where   = '/usr/bin/env gpg' # FIXME
       @options = OPTIONS.merge!(options)
@@ -29,18 +36,25 @@ module OpenPGP class Engine
 
     ##
     # Determines if GnuPG is available.
+    #
+    # @return [Boolean]
     def available?
       !!version
     end
 
     ##
     # Returns the GnuPG version number.
+    #
+    # @return [String]
     def version
       exec(:version).readline =~ /^gpg \(GnuPG\) (.*)$/ ? $1 : nil
     end
 
     ##
     # Generates a new OpenPGP keypair and stores it GnuPG's keyring.
+    #
+    # @param  [Hash{Symbol => String}] info
+    # @return [Integer]
     def gen_key(info = {})
       stdin, stdout, stderr = exec3(:gen_key) do |stdin, stdout, stderr|
         stdin.puts "Key-Type: #{info[:key_type]}"           if info[:key_type]
@@ -64,22 +78,34 @@ module OpenPGP class Engine
 
     ##
     # Exports a specified key from the GnuPG keyring.
+    #
+    # @param  [String] key_id
+    # @param  [Hash{Symbol => Object}] options
+    # @return [Message]
     def export(key_id = nil, opts = {})
       OpenPGP::Message.parse(exec([:export, *[key_id].flatten], opts ).read)
     end
 
     ##
-    ##
     # Imports a specified keyfile into the GnuPG keyring.
+    #
+    # @return [void]
     def import()
       # TODO
     end
 
+    ##
+    # @param  [String] key_id
+    # @return [void]
     def delete_secret_and_public_key(key_id)
       opts = {:batch => true}
       OpenPGP::Message.parse(exec([:delete_secret_and_public_key, key_fingerprint(key_id)], opts ).read)
     end
 
+    ##
+    # @param  [String] key_id
+    # @param  [Hash{Symbol => Object}] options
+    # @return [String]
     def key_fingerprint(key_id, opts = {})
       message = exec([:fingerprint, *[key_id].flatten], opts ).read
       if message =~ /Key fingerprint = (.*)\n/
@@ -90,24 +116,36 @@ module OpenPGP class Engine
 
     ##
     # Returns an array of key IDs/titles of the keys in the public keyring.
+    #
+    # @return [Array]
     def list_keys()
       # TODO
     end
 
     ##
     # Encrypts the given plaintext to the specified recipients.
+    #
+    # @param  [String] plaintext
+    # @param  [Hash{Symbol => Object}] options
+    # @return [String]
     def encrypt(plaintext, options = {})
       # TODO
     end
 
     ##
     # Decrypts the given ciphertext using the specified key ID.
+    #
+    # @param  [String] ciphertext
+    # @param  [Hash{Symbol => Object}] options
+    # @return [String]
     def decrypt(ciphertext, options = {})
       # TODO
     end
 
     ##
     # Makes an OpenPGP signature.
+    #
+    # @return [void]
     def sign()
       # TODO
     end
@@ -139,6 +177,10 @@ module OpenPGP class Engine
     ##
     # Executes a GnuPG command, yielding the standard input and returning
     # the standard output.
+    #
+    # @param  [String] command
+    # @param  [Hash{Symbol => Object}] options
+    # @return [IO]
     def exec(command, options = {}, &block) #:yields: stdin
       exec4(command, options) do |pid, stdin, stdout, stderr|
         block.call(stdin) if block_given?
@@ -152,6 +194,10 @@ module OpenPGP class Engine
     ##
     # Executes a GnuPG command, yielding and returning the standard input,
     # output and error.
+    #
+    # @param  [String] command
+    # @param  [Hash{Symbol => Object}] options
+    # @return [Array(IO, IO, IO)]
     def exec3(command, options = {}, &block) #:yields: stdin, stdout, stderr
       exec4(command, options) do |pid, stdin, stdout, stderr|
         block.call(stdin, stdout, stderr) if block_given?
@@ -165,6 +211,10 @@ module OpenPGP class Engine
     ##
     # Executes a GnuPG command, yielding the process identifier as well as
     # the standard input, output and error.
+    #
+    # @param  [String] command
+    # @param  [Hash{Symbol => Object}] options
+    # @return [void]
     def exec4(command, options = {}, &block) #:yields: pid, stdin, stdout, stderr
       require 'rubygems'
       require 'open4'
@@ -175,6 +225,10 @@ module OpenPGP class Engine
 
       ##
       # Constructs the GnuPG command-line for use with +exec+.
+      #
+      # @param  [String] command
+      # @param  [Hash{Symbol => Object}] options
+      # @return [String]
       def cmdline(command, options = {})
         command = [command].flatten
         cmdline = [where]
@@ -186,6 +240,9 @@ module OpenPGP class Engine
 
       ##
       # Translates Ruby symbols into GnuPG option arguments.
+      #
+      # @param  [String, #to_s] option
+      # @return [String]
       def option(option)
         "--" << option.to_s.gsub('_', '-')
       end

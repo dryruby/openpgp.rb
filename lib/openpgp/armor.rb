@@ -14,27 +14,42 @@ module OpenPGP
       ARMORED_FILE      = 'ARMORED FILE' # a GnuPG extension
     end
 
+    ##
+    # @param  [String, #to_s] marker
+    # @return [String]
     def self.marker(marker)
       marker = Markers.const_get(marker.to_s.upcase.to_sym) if marker.is_a?(Symbol)
       marker.to_s.upcase
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6.2
+    # @param  [String, #to_s] marker
+    # @return [String]
+    # @see    http://tools.ietf.org/html/rfc4880#section-6.2
     def self.header(marker)
       "-----BEGIN PGP #{marker(marker)}-----"
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6.2
+    # @param  [String, #to_s] marker
+    # @return [String]
+    # @see    http://tools.ietf.org/html/rfc4880#section-6.2
     def self.footer(marker)
       "-----END PGP #{marker(marker)}-----"
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6
-    # @see http://tools.ietf.org/html/rfc4880#section-6.2
-    # @see http://tools.ietf.org/html/rfc2045
+    # @param  [String]                 data
+    # @param  [String, #to_s]          marker
+    # @param  [Hash{Symbol => Object}] options
+    # @option options [String, #to_s]  :version (nil)
+    # @option options [String, #to_s]  :comment (nil)
+    # @option options [Hash]           :headers (nil)
+    # @option options [Integer]        :line_length (nil)
+    # @return [String]
+    # @see    http://tools.ietf.org/html/rfc4880#section-6
+    # @see    http://tools.ietf.org/html/rfc4880#section-6.2
+    # @see    http://tools.ietf.org/html/rfc2045
     def self.encode(data, marker = :message, options = {})
       Buffer.write do |text|
         text << self.header(marker)     << "\n"
@@ -50,8 +65,13 @@ module OpenPGP
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-6
-    # @see http://tools.ietf.org/html/rfc2045
+    # @param  [String]                 text
+    # @param  [String, #to_s]          marker
+    # @param  [Hash{Symbol => Object}] options
+    # @option options [Boolean]        :crc (false)
+    # @return [String]
+    # @see    http://tools.ietf.org/html/rfc4880#section-6
+    # @see    http://tools.ietf.org/html/rfc2045
     def self.decode(text, marker = nil, options = {})
       data, crc, state = Buffer.new, nil, :begin
 
@@ -87,13 +107,18 @@ module OpenPGP
       data
     end
 
+    ##
     class CRCError < IOError; end
 
     protected
 
       ##
-      # Returns the Base64-encoded version of +input+, with a configurable
+      # Returns the Base64-encoded version of `input`, with a configurable
       # output line length.
+      #
+      # @param  [String]  input
+      # @param  [Integer] line_length
+      # @return [String]
       def self.encode64(input, line_length = nil)
         if line_length.nil?
           [input].pack('m')
@@ -110,7 +135,10 @@ module OpenPGP
       end
 
       ##
-      # Returns the Base64-decoded version of +input+.
+      # Returns the Base64-decoded version of `input`.
+      #
+      # @param  [String] input
+      # @return [String]
       def self.decode64(input)
         input.unpack('m').first
       end

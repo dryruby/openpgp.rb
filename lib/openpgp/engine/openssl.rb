@@ -1,15 +1,24 @@
 module OpenPGP
   class Engine
     class OpenSSL < Engine
+      ##
+      # @param  [Boolean] reload
+      # @return [void]
+      # @raise  [LoadError]
       def self.load!(reload = false)
         require 'openssl' unless defined?(::OpenSSL) || reload
       end
 
+      ##
+      # @return [void]
+      # @raise  [LoadError]
       def self.install!
         load!
         [Random, Digest].each { |mod| install_extensions! mod }
       end
 
+      ##
+      # @private
       module Random #:nodoc:
         def number(bits = 32, options = {})
           ::OpenSSL::BN.rand(bits)
@@ -24,6 +33,8 @@ module OpenPGP
         end
       end
 
+      ##
+      # @private
       module Digest #:nodoc:
         def size
           ::OpenSSL::Digest.new(algorithm.to_s).digest_length
@@ -38,10 +49,11 @@ module OpenPGP
         end
       end
 
+      ##
+      # @private
       module Cipher #:nodoc:
         # TODO
       end
-
     end
   end
 end

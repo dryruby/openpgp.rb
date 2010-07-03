@@ -14,6 +14,9 @@ module OpenPGP
 
     DEFAULT = SHA1
 
+    ##
+    # @param  [Symbol, String, Integer] identifier
+    # @return [Class]
     def self.for(identifier)
       case identifier
         when Symbol then const_get(identifier.to_s.upcase)
@@ -28,30 +31,46 @@ module OpenPGP
       end
     end
 
+    ##
+    # @return [Integer]
     def self.to_i() identifier end
 
+    ##
+    # @return [Integer]
     def self.identifier
       const_get(:IDENTIFIER)
     end
 
+    ##
+    # @return [Symbol]
     def self.algorithm
       name.split('::').last.to_sym unless self == Digest
     end
 
+    ##
+    # @return [Integer]
     def self.hexsize
       size * 2
     end
 
+    ##
+    # @return [Integer]
     def self.size
       require 'digest' unless defined?(::Digest)
       ::Digest.const_get(algorithm).new.digest_length
     end
 
+    ##
+    # @param  [String] data
+    # @return [String]
     def self.hexdigest(data)
       require 'digest' unless defined?(::Digest)
       ::Digest.const_get(algorithm).hexdigest(data).upcase
     end
 
+    ##
+    # @param  [String] data
+    # @return [String]
     def self.digest(data)
       require 'digest' unless defined?(::Digest)
       ::Digest.const_get(algorithm).digest(data)

@@ -8,10 +8,15 @@ module OpenPGP
   class Message
     include Enumerable
 
+    # @return [Array<Packet>]
     attr_accessor :packets
 
     ##
     # Creates an encrypted OpenPGP message.
+    #
+    # @param  [Object]                 data
+    # @param  [Hash{Symbol => Object}] options
+    # @return [Message]
     def self.encrypt(data, options = {}, &block)
       if options[:symmetric]
         key    = (options[:key]    || S2K::DEFAULT.new(options[:passphrase]))
@@ -38,6 +43,9 @@ module OpenPGP
     end
 
     ##
+    # @param  [Object]                 data
+    # @param  [Hash{Symbol => Object}] options
+    # @return [Object]
     def self.decrypt(data, options = {}, &block)
       raise NotImplementedError # TODO
     end
@@ -45,8 +53,10 @@ module OpenPGP
     ##
     # Parses an OpenPGP message.
     #
-    # @see http://tools.ietf.org/html/rfc4880#section-4.1
-    # @see http://tools.ietf.org/html/rfc4880#section-4.2
+    # @param  [Buffer, #to_str] data
+    # @return [Message]
+    # @see    http://tools.ietf.org/html/rfc4880#section-4.1
+    # @see    http://tools.ietf.org/html/rfc4880#section-4.2
     def self.parse(data)
       data = Buffer.new(data.to_str) if data.respond_to?(:to_str)
 
@@ -61,36 +71,56 @@ module OpenPGP
       msg
     end
 
+    ##
+    # @return [IO, #write] io
+    # @return [void]
     def self.write(io = nil, &block)
       data = self.new(&block).to_s
       io.respond_to?(:write) ? io.write(data) : data
     end
 
+    ##
+    # @param  [Array<Packet>] packets
     def initialize(*packets, &block)
       @packets = packets.flatten
       block.call(self) if block_given?
     end
 
+    ##
+    # @yield  [packet]
+    # @yieldparam [Packet] packet
+    # @return [Enumerator]
     def each(&block) # :yields: packet
       packets.each(&block)
     end
 
+    ##
+    # @return [Array<Packet>]
     def to_a
       packets.to_a
     end
 
+    ##
+    # @param  [Packet] packet
+    # @return [self]
     def <<(packet)
       packets << packet
     end
 
+    ##
+    # @return [Boolean]
     def empty?
       packets.empty?
     end
 
+    ##
+    # @return [Integer]
     def size
       inject(0) { |sum, packet| sum + packet.size }
     end
 
+    ##
+    # @return [String]
     def to_s
       Buffer.write do |buffer|
         packets.each do |packet|

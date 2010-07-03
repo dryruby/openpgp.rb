@@ -16,7 +16,9 @@ module OpenPGP
     DEFAULT = AES128
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-9.2
+    # @param  [Symbol, String, Integer] identifier
+    # @return [Class]
+    # @see    http://tools.ietf.org/html/rfc4880#section-9.2
     def self.for(identifier)
       case identifier
         when Symbol then const_get(identifier.to_s.upcase)
@@ -32,9 +34,18 @@ module OpenPGP
       end
     end
 
-    attr_accessor :key, :options
+    # @return [S2K]
+    attr_accessor :key
+
+    # @return [Hash]
+    attr_accessor :options
+
+    # @return [String]
     attr_accessor :engine
 
+    ##
+    # @param  [S2K]                    key
+    # @param  [Hash{Symbol => Object}] options
     def initialize(key, options = {})
       @key = case key
         when S2K then key.to_key(key_size)
@@ -43,24 +54,36 @@ module OpenPGP
       @options = options
     end
 
+    ##
+    # @return [Integer]
     def self.to_i() identifier end
 
+    ##
+    # @return [Integer]
     def self.identifier
       const_get(:IDENTIFIER)
     end
 
+    ##
+    # @return [Integer]
     def identifier()
       self.class.identifier
     end
 
+    ##
+    # @return [Integer]
     def key_size
       @key_size ||= engine.key_len
     end
 
+    ##
+    # @return [Integer]
     def block_size
       @block_size ||= engine.block_size
     end
 
+    ##
+    # @return [String]
     def engine
       @engine ||= Engine::OpenSSL.use do
         OpenSSL::Cipher.new(self.class.const_get(:ENGINE))
@@ -68,7 +91,9 @@ module OpenPGP
     end
 
     ##
-    # @see http://tools.ietf.org/html/rfc4880#section-13.9
+    # @param  [String] plaintext
+    # @return [String]
+    # @see    http://tools.ietf.org/html/rfc4880#section-13.9
     def encrypt(plaintext)
       ciphertext = String.new
 
@@ -101,12 +126,18 @@ module OpenPGP
       ciphertext
     end
 
+    ##
+    # @param  [String] ciphertext
+    # @return [String]
     def decrypt(ciphertext)
       # TODO
       engine.reset
       engine.decrypt
     end
 
+    ##
+    # @param  [String] block
+    # @return [String]
     def encrypt_block(block)
       engine.encrypt
       engine.key = @key

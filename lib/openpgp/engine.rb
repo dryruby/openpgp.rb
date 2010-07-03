@@ -1,8 +1,11 @@
 module OpenPGP
+  ##
   class Engine
     autoload :GnuPG,   'openpgp/engine/gnupg'
     autoload :OpenSSL, 'openpgp/engine/openssl'
 
+    ##
+    # @return [Boolean]
     def self.available?
       begin
         load!(true)
@@ -12,14 +15,25 @@ module OpenPGP
       end
     end
 
+    ##
+    # @param  [Boolean] reload
+    # @return [void]
+    # @raise  [LoadError]
     def self.load!(reload = false)
       raise LoadError
     end
 
+    ##
+    # @return [void]
+    # @raise  [LoadError]
     def self.install!
       load!
     end
 
+    ##
+    # @yield  [engine]
+    # @yieldparam [Engine] engine
+    # @return [void]
     def self.use(&block)
       load!
       block.call(self)
@@ -27,6 +41,9 @@ module OpenPGP
 
     protected
 
+      ##
+      # @param  [Module] extension
+      # @return [void]
       def self.install_extensions!(extension)
         name = extension.name.split('::').last.to_sym
 
