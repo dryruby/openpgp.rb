@@ -3,7 +3,6 @@ OpenPGP.rb: OpenPGP for Ruby
 
 This is a pure-Ruby implementation of the OpenPGP Message Format (RFC 4880).
 
-* <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
 
 ### About OpenPGP
@@ -28,12 +27,13 @@ Features
 Examples
 --------
 
+    require 'rubygems'
     require 'openpgp'
 
 ### Decoding an ASCII-armored message
 
     require 'open-uri'
-    text = open('http://ar.to/pgp.txt').read
+    text = open('http://openpgp.rubyforge.org/pgp.txt').read
 
     msg = OpenPGP::Message.parse(OpenPGP.dearmor(text))
 
@@ -89,7 +89,7 @@ Resources
 * <http://openpgp.rubyforge.org/>
 * <http://github.com/bendiken/openpgp>
 * <http://rubygems.org/gems/openpgp>
-* <http://rubyforge.org/projects/openpgp>
+* <http://rubyforge.org/projects/openpgp/>
 * <http://raa.ruby-lang.org/project/openpgp/>
 * <http://www.ohloh.net/p/openpgp>
 
@@ -128,4 +128,4 @@ information, see <http://unlicense.org/> or the accompanying UNLICENSE file.
 
 [YARD]:      http://yardoc.org/
 [YARD-GS]:   http://yardoc.org/docs/yard/file:docs/GettingStarted.md
-[PDD]:       http://lists.w3.org/Archives/Public/public-rdf-ruby/2010May/0013.html
+[PDD]:       http://unlicense.org/#unlicensing-contributions
