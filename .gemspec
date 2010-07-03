@@ -30,7 +30,7 @@ GEMSPEC = Gem::Specification.new do |gem|
 
   gem.required_ruby_version      = '>= 1.8.1'
   gem.requirements               = ['GnuPG >= 1.4.7 (not required, but enables extra functionality)']
-  gem.add_development_dependency 'yard' , '>= 0.5.6'
+  gem.add_development_dependency 'yard' , '>= 0.5.8'
   gem.add_development_dependency 'rspec', '>= 1.3.0'
   gem.add_runtime_dependency     'open4', '>= 1.0.1'
   gem.post_install_message       = nil
