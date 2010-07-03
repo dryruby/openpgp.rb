@@ -128,7 +128,7 @@ module OpenPGP
     ##
     # @return [String]
     def read_byte
-      getc
+      getbyte
     end
 
     ##
