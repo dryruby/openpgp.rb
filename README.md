@@ -127,5 +127,5 @@ OpenPGP.rb is free and unencumbered public domain software. For more
 information, see <http://unlicense.org/> or the accompanying UNLICENSE file.
 
 [YARD]:      http://yardoc.org/
-[YARD-GS]:   http://yardoc.org/docs/yard/file:docs/GettingStarted.md
+[YARD-GS]:   http://rubydoc.info/docs/yard/file/docs/GettingStarted.md
 [PDD]:       http://unlicense.org/#unlicensing-contributions
